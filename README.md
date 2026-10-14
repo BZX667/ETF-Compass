@@ -4,7 +4,7 @@
 
 ### 让策略保持纪律，让 AI 分析拓展视角
 
-**ETF Compass 是一个面向 ETF 研究的开源 Python 工具包：量化策略生成可复核的组合计划，AI 多视角分析补充证据、挑战假设并识别风险。**
+**ETF Compass 是一个面向 ETF 研究的开源 Python 工具包，将系统化策略、组合风险控制与 AI 独立研究组合在一起。**
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-35A16B.svg)](LICENSE)
@@ -14,7 +14,7 @@
 
 </div>
 
-系统化量化策略以一致、可测试的规则生成组合信号；AI 分析整合技术、资金与产业事实，经过多空讨论和风险复核后给出独立评估。两者优势互补：策略负责信号、轮动与仓位约束，AI 帮助扩大研究视角；AI 观点不会覆盖策略信号，也不会自动下单。
+规则信号负责候选筛选、ETF 轮动与仓位约束；AI 根据调用方提供的市场事实补充证据、检验多空观点并提示风险。策略结果保持可复核，AI 提供独立研究视角；AI 不改写策略权重，也不执行交易。
 
 ## 工作流程
 
@@ -58,17 +58,23 @@ AI 以同一组行情与市场事实为输入，并把策略计划作为评估�
 | RSI 均值回归 | 识别短期超卖状态与潜在修复信号 |
 | ATR 波动率突破 | 结合均线和真实波幅跟踪趋势变化 |
 
-多信号可等权合议，用于横截面排名和 Top-K 轮动；持仓缓冲减少排名边缘的频繁切换。仓位模块按历史波动估算风险目标，并限制单项权重和组合总敞口。计算信号时应使用决策时点可获得的数据，并按实际执行时点评估结果。
+信号可等权合议，用于横截面排名与 Top-K 轮动；持仓缓冲减少排名边缘的频繁切换。仓位模块基于历史波动估算风险目标，并限制单项权重和组合总敞口。调用方提供行情数据，信号应使用决策时点可获得的信息，并按实际执行时点评估。
 
-AI 工作流由事实分析、多空研究、风险审查和组合经理总结组成，输出立场、信心、证据、风险与观察项。相关项目：[TradingAgents](https://github.com/TauricResearch/TradingAgents)。模型供应商由调用方提供的适配器接入，可使用兼容 API 或本地模型；也可按研究需要扩展事实输入和分析角色。
+AI 工作流包含事实分析、多空研究、风险审查和组合经理总结，输出立场、信心、证据、风险与观察项。调用方可选择兼容 API 或本地模型接入。项目思路与 [TradingAgents](https://github.com/TauricResearch/TradingAgents) 相关。
 
 ### 按需扩展，自己 DIY
 
-ETF Compass 提供可组合的 Python 模块，方便你基于现有代码继续 DIY：添加自己的量化信号，调整 ETF 筛选与轮动规则，或定制仓位和风险控制方法。AI 分析可接入你选择的模型，补充自己的行情与研究资料，并按需求调整分析角色和工作流。策略与模型扩展后，应使用一致的数据时点和执行假设独立验证。
+核心组件是可单独调用、自由组合的 Python 函数，方便从现有模块出发，逐步搭建自己的 ETF 研究流程：
+
+- **添加策略信号：** 自定义函数返回按日期和 ETF 对齐的 `pandas.DataFrame`，即可传入 `equal_weight_ensemble({...})`，与内置信号共同合议。
+- **定制筛选与仓位：** `select_assets(...)` 根据评分和持仓缓冲选出候选 ETF；`volatility_target_weights(...)` 根据历史收益估算目标权重，并应用波动率与敞口限制。可按需替换任一环节，接入自己的筛选、轮动、仓位或风险方法。
+- **扩展 AI 研究：** `run_trading_agents_review(...)` 接收自定义 `facts` 事实组、`complete(prompt)` 模型适配器和 `rounds` 讨论轮数（1–5）。事实组名称可定义分析角色，适配器可连接兼容 API 或本地模型。内置多空、风险与总结阶段提供开箱即用的流程；也可复用模型适配接口，自行编排分析步骤。
+
+不同扩展都可接回组合和报告流程。验证时应统一数据时点、基准、评估周期与执行假设。
 
 ## 报告与推送
 
-支持生成并推送每日策略简报与每周复盘。日报呈现行情、策略组合和 AI 研究摘要；周报回顾轮动表现与已到期观点。报告是策略与 AI 研究的辅助输出。
+支持生成并推送每日策略简报与每周复盘。日报呈现行情、策略组合和 AI 研究摘要；周报整理调用方提供的轮动回顾，以及仅包含已到期样本的 AI 观点评估。报告用于辅助研究，不替代策略验证。
 
 <div align="center">
   <a href="assets/report-preview.svg">
@@ -95,13 +101,18 @@ python -m pytest
 
 ```python
 from etf_compass import (
-    equal_weight_ensemble, momentum_score, select_assets,
+    equal_weight_ensemble, momentum_score, render_daily_report,
+    render_daily_report_html, select_assets, send_report,
     volatility_target_weights, turtle_breakout,
 )
 from etf_compass.agents import run_trading_agents_review
-from etf_compass import render_daily_report, render_daily_report_html, send_report
 
-signals = {"momentum": momentum_score(close), "turtle": turtle_breakout(close)}
+# my_signal(close) 由应用侧实现，返回与内置信号对齐的 DataFrame。
+signals = {
+    "momentum": momentum_score(close),
+    "turtle": turtle_breakout(close),
+    "my_signal": my_signal(close),
+}
 scores = equal_weight_ensemble(signals).iloc[-1].dropna()
 selected = select_assets(scores, top_k=4, held=current_holdings, buffer_multiple=1.25)
 weights = volatility_target_weights(returns, selected, max_weight=0.35)
@@ -109,12 +120,15 @@ weights = volatility_target_weights(returns, selected, max_weight=0.35)
 review = run_trading_agents_review(
     facts={"technical": technical_facts, "industry": industry_facts},
     mechanical_plan=f"Target weights: {weights.to_dict()}",
-    complete=my_model_adapter,  # credentials stay in the calling application
+    complete=my_model_adapter,  # 由调用方接入兼容 API 或本地模型
 )
 report_inputs = dict(
     as_of=report_date,
     market_data_as_of=quote_timestamp,
-    rotation=[{"symbol": symbol, "score": scores[symbol], "weight": weights[symbol]} for symbol in selected],
+    rotation=[
+        {"symbol": symbol, "score": scores[symbol], "weight": weights[symbol]}
+        for symbol in selected
+    ],
     assessment=review.assessment,
     market_coverage="selected ETF universe",
 )
