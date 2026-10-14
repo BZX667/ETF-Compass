@@ -19,32 +19,18 @@
 ## 工作流程
 
 ```mermaid
-flowchart TB
-    DATA([共同输入<br/>最新行情与研究事实])
-
-    subgraph STRATEGY[系统化策略 · 纪律与风险]
-        direction LR
-        S1[多信号评分] --> S2[ETF 筛选与轮动] --> S3[仓位与风险控制] --> S4[组合计划]
-    end
-
-    subgraph AI[AI 研究 · 证据与审视]
-        direction LR
-        A1[事实梳理] --> A2[多空观点检验] --> A3[风险复核] --> A4[独立评估]
-    end
-
-    DATA --> S1
-    DATA --> A1
-    S4 --> OUT([日报与每周复盘])
-    A4 --> OUT
-
-    classDef input fill:#F2EAE3,stroke:#B2744F,stroke-width:2px,color:#26333A
-    classDef systematic fill:#EAF0EF,stroke:#607E85,stroke-width:1.5px,color:#26333A
-    classDef research fill:#EEF0E9,stroke:#82917E,stroke-width:1.5px,color:#26333A
-    classDef output fill:#496A72,stroke:#496A72,stroke-width:2px,color:#FFFFFF,font-weight:bold
-    class DATA input
-    class S1,S2,S3,S4 systematic
-    class A1,A2,A3,A4 research
-    class OUT output
+flowchart LR
+    A[最新行情与研究事实] --> B[系统化策略信号<br/>趋势 · 动量 · 均值回归 · 突破]
+    B --> C[信号合议与 ETF 轮动<br/>Top-K + 持仓缓冲]
+    C --> D[仓位与风险控制<br/>波动率目标 + 敞口上限]
+    D --> E[组合计划]
+    A --> F[AI 事实分析<br/>技术 · 资金 · 产业]
+    F --> G[多空观点检验]
+    G --> H[风险复核与组合经理总结]
+    E -. 作为评估背景 .-> H
+    H --> I[结构化观点与风险提示]
+    E --> J[日报与每周复盘]
+    I --> J
 ```
 
 ## 系统化策略 + AI 分析
