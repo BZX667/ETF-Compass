@@ -6,6 +6,7 @@ from etf_compass import (
     ForwardObservation,
     IndependentAssessment,
     render_daily_report,
+    render_daily_report_html,
     render_weekly_review,
     score_forward_observations,
 )
@@ -39,6 +40,29 @@ def test_daily_report_rejects_invalid_weight():
             market_data_as_of="2026-10-14",
             rotation=[{"symbol": "510300", "score": 1, "weight": 1.2}],
         )
+
+
+def test_html_daily_report_renders_styled_layout_and_escapes_input():
+    report = render_daily_report_html(
+        as_of="2026-10-14",
+        market_data_as_of="15:00 Asia/Shanghai",
+        market_coverage="major ETFs",
+        rotation=[
+            {"symbol": "ETF <A>", "score": 0.8, "weight": 0.25, "signals": {"trend": "positive"}}
+        ],
+        assessment=IndependentAssessment(
+            stance="neutral", confidence="medium", evidence=("Trend <steady>",),
+            risks=("Volatility",), watch_items=(),
+        ),
+        plan_summary="Keep risk budget < 1.",
+        risk_notes=("Check quote coverage",),
+    )
+    assert "background:#f4f1e9" in report
+    assert "ETF &lt;A&gt;" in report
+    assert "Trend &lt;steady&gt;" in report
+    assert "Keep risk budget &lt; 1." in report
+    assert "major ETFs" in report
+    assert "<script>" not in report
 
 
 def test_forward_scorecard_uses_only_resolved_observations():

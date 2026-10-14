@@ -18,25 +18,21 @@
 
 ## 工作流程
 
-```mermaid
-flowchart LR
-    A[最新行情与事实] --> B[量化信号与 ETF 轮动]
-    B --> C[仓位预算与风险控制]
-    C --> D[策略组合计划]
-    A --> E[分析师与多空讨论]
-    E --> F[风险复核与结构化评估]
-    D -. 供评估参考 .-> F
-    D --> G[日报 / 前瞻记录 / 周复盘]
-    F --> G
-```
+<div align="center">
+  <img src="assets/workflow.svg" alt="系统化策略与 AI 研究两条并行路径，汇合为组合计划与独立评估" width="100%">
+</div>
 
 ## 系统化策略 + AI 分析
 
-<table width="100%">
+<table width="100%" align="center" cellpadding="10" cellspacing="0" style="width:100%;table-layout:fixed">
+  <colgroup>
+    <col width="30%">
+    <col width="70%">
+  </colgroup>
   <thead>
     <tr>
-      <th align="left" width="30%">系统化策略</th>
-      <th align="left" width="70%">核心作用</th>
+      <th align="left">系统化策略</th>
+      <th align="left">核心作用</th>
     </tr>
   </thead>
   <tbody>
@@ -69,17 +65,17 @@ ETF Compass 提供可组合的 Python 模块，方便你基于现有代码继续
 
 ## 报告与推送
 
-支持生成并推送每日策略简报与每周复盘。日报聚合行情、轮动组合和 AI 研究摘要；周报回顾策略表现、已到期观点的评估结果与后续观察重点。可按部署需要发送到邮箱或微信。
+支持生成并推送每日策略简报与每周复盘。日报呈现行情、策略组合和 AI 研究摘要；周报回顾轮动表现与已到期观点。报告是策略与 AI 研究的辅助输出。
 
 <div align="center">
   <a href="assets/report-preview.svg">
-    <img src="assets/report-preview.svg" alt="ETF Compass 日报与周复盘样式预览，研究报告风格；数据为虚构示例" width="100%">
+    <img src="assets/report-preview.svg" alt="ETF Compass 每日策略简报样式预览；示例数据为虚构内容" width="78%">
   </a>
   <br>
-  <sub>日报与周复盘样式预览 · 点击图片查看原图 · 所有数值均为虚构示例</sub>
+  <sub>每日简报样式预览 · 点击图片查看原图 · 所有数值均为虚构示例</sub>
 </div>
 
-报告中的行情、账户信息与推送渠道由使用者的部署应用提供；本仓库不包含私人账户数据或推送密钥。
+HTML 日报可用于邮件或浏览器查看；微信渠道发送适配的文本版。报告中的行情、账户信息与推送渠道由使用者的部署应用提供；本仓库不包含私人账户数据或推送密钥。
 
 ## 快速开始
 
@@ -100,7 +96,7 @@ from etf_compass import (
     volatility_target_weights, turtle_breakout,
 )
 from etf_compass.agents import run_trading_agents_review
-from etf_compass import render_daily_report, send_report
+from etf_compass import render_daily_report, render_daily_report_html, send_report
 
 signals = {"momentum": momentum_score(close), "turtle": turtle_breakout(close)}
 scores = equal_weight_ensemble(signals).iloc[-1].dropna()
@@ -112,13 +108,16 @@ review = run_trading_agents_review(
     mechanical_plan=f"Target weights: {weights.to_dict()}",
     complete=my_model_adapter,  # credentials stay in the calling application
 )
-report = render_daily_report(
+report_inputs = dict(
     as_of=report_date,
     market_data_as_of=quote_timestamp,
     rotation=[{"symbol": symbol, "score": scores[symbol], "weight": weights[symbol]} for symbol in selected],
     assessment=review.assessment,
+    market_coverage="selected ETF universe",
 )
-send_report("ETF daily research", report, channels=("email", "serverchan"))
+text_report = render_daily_report(**report_inputs)
+html_report = render_daily_report_html(**report_inputs)
+send_report("ETF daily research", text_report, html_body=html_report, channels=("email", "serverchan"))
 ```
 
 周复盘可使用 `ForwardObservation` 保存每次观点的观察日、评估结束日、立场、标的收益和基准收益，再调用 `score_forward_observations(..., as_of=review_date)` 与 `render_weekly_review(...)`。收益区间必须从观察日之后开始，并统一基准和持有期；仅已结束的样本进入评分。

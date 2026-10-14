@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1380" viewBox="0 0 1200 1380" role="img" aria-labelledby="title description">
-  <title id="title">ETF Compass daily brief and weekly review preview</title>
-  <desc id="description">A restrained research-paper style report preview with warm paper background, charcoal typography, muted blue and sage accents. All sample figures are illustrative.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1060" viewBox="0 0 1200 1060" role="img" aria-labelledby="title description">
+  <title id="title">ETF Compass daily report preview</title>
+  <desc id="description">A single illustrative daily ETF research brief with rotation, portfolio plan, AI summary, evidence and risks.</desc>
   <defs>
     <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
       <feDropShadow dx="0" dy="5" stdDeviation="12" flood-color="#26333A" flood-opacity="0.08"/>
@@ -10,106 +10,70 @@
       .serif { font-family: "Iowan Old Style", "Noto Serif SC", "Songti SC", Georgia, serif; }
       .ink { fill: #26333A; }
       .muted { fill: #6E7A7D; }
-      .smallcaps { font-size: 13px; font-weight: 700; letter-spacing: 1.6px; }
       .label { font-size: 14px; font-weight: 600; }
       .body { font-size: 16px; }
       .rule { stroke: #E5E1D8; stroke-width: 1; }
     </style>
   </defs>
 
-  <rect width="1200" height="1380" fill="#F4F1E9"/>
-  <rect x="0" y="0" width="1200" height="12" fill="#496A72"/>
+  <rect width="1200" height="1060" rx="18" fill="#F4F1E9"/>
+  <rect x="0" y="0" width="1200" height="10" rx="5" fill="#496A72"/>
+  <g filter="url(#shadow)"><rect x="54" y="46" width="1092" height="968" rx="12" fill="#FFFEFA"/></g>
+  <rect x="54" y="46" width="8" height="968" rx="4" fill="#496A72"/>
 
-  <!-- Editorial header -->
-  <text x="72" y="68" class="sans smallcaps" fill="#496A72">ETF COMPASS  /  RESEARCH NOTE</text>
-  <text x="72" y="124" class="serif ink" font-size="38" font-weight="600">把策略信号与研究判断，整理成清晰的每日简报</text>
-  <text x="72" y="160" class="sans muted" font-size="16">日报追踪组合与市场变化；周复盘回看策略表现和已到期的 AI 观点。</text>
-  <rect x="936" y="52" width="192" height="34" rx="17" fill="#E9E4D8"/>
-  <circle cx="956" cy="69" r="4" fill="#B2744F"/>
-  <text x="971" y="74" class="sans smallcaps" font-size="11" fill="#6E6258">示例数据 · 非真实业绩</text>
+  <text x="91" y="94" class="sans" font-size="12" font-weight="700" letter-spacing="1.7" fill="#496A72">ETF COMPASS  /  DAILY RESEARCH BRIEF</text>
+  <rect x="910" y="69" width="198" height="32" rx="16" fill="#F2EAE3"/>
+  <circle cx="929" cy="85" r="4" fill="#B2744F"/>
+  <text x="943" y="90" class="sans" font-size="11" font-weight="700" letter-spacing=".7" fill="#80634F">虚构数据 · 样式预览</text>
+  <text x="91" y="148" class="serif ink" font-size="34" font-weight="600">市场收盘简报</text>
+  <text x="91" y="181" class="sans muted" font-size="15">2026 年 10 月 14 日　·　行情截至 15:00（示例）</text>
+  <rect x="91" y="202" width="1017" height="48" rx="8" fill="#F3F5F1"/>
+  <text x="111" y="232" class="sans label" fill="#496A57">覆盖范围</text>
+  <text x="198" y="232" class="sans body ink">主要观察 ETF</text>
+  <text x="1086" y="232" text-anchor="end" class="sans" font-size="13" fill="#6E7A7D">行情与事实按决策时点更新</text>
 
-  <!-- Daily report sheet -->
-  <g filter="url(#shadow)">
-    <rect x="56" y="202" width="1088" height="544" rx="12" fill="#FFFEFA"/>
-  </g>
-  <rect x="56" y="202" width="8" height="544" rx="4" fill="#496A72"/>
-  <text x="92" y="244" class="sans smallcaps" fill="#496A72">01  /  DAILY BRIEF</text>
-  <text x="92" y="288" class="serif ink" font-size="30" font-weight="600">市场收盘简报</text>
-  <text x="92" y="318" class="sans muted" font-size="15">2026 年 10 月 14 日　·　行情截至 15:00（示例）</text>
-  <rect x="910" y="228" width="194" height="38" rx="19" fill="#E8EFEA"/>
-  <circle cx="932" cy="247" r="5" fill="#6D8B78"/>
-  <text x="947" y="252" class="sans label" fill="#496A57">数据覆盖  主要观察 ETF</text>
-  <line x1="92" y1="342" x2="1104" y2="342" class="rule"/>
+  <text x="91" y="294" class="sans" font-size="12" font-weight="700" letter-spacing="1.4" fill="#6E7A7D">轮动组合与目标仓位</text>
+  <rect x="91" y="312" width="1017" height="42" rx="6" fill="#EAF0EF"/>
+  <text x="111" y="339" class="sans label" fill="#496A72">排名</text>
+  <text x="185" y="339" class="sans label" fill="#496A72">ETF</text>
+  <text x="438" y="339" class="sans label" fill="#496A72">信号</text>
+  <text x="824" y="339" text-anchor="end" class="sans label" fill="#496A72">得分</text>
+  <text x="1084" y="339" text-anchor="end" class="sans label" fill="#496A72">目标仓位</text>
 
-  <text x="92" y="374" class="sans smallcaps muted">轮动组合</text>
-  <text x="92" y="405" class="sans label ink">排名</text>
-  <text x="178" y="405" class="sans label ink">ETF</text>
-  <text x="534" y="405" class="sans label ink">信号摘要</text>
-  <text x="1010" y="405" text-anchor="end" class="sans label ink">目标权重</text>
-  <line x1="92" y1="420" x2="1104" y2="420" class="rule"/>
+  <circle cx="124" cy="393" r="14" fill="#E8EFEA"/><text x="124" y="398" text-anchor="middle" class="sans label" fill="#496A57">1</text>
+  <text x="185" y="399" class="sans body ink" font-weight="700">510300</text><text x="270" y="399" class="sans body muted">沪深 300 ETF</text>
+  <rect x="438" y="377" width="112" height="27" rx="13.5" fill="#E8EFEA"/><text x="494" y="395" text-anchor="middle" class="sans" font-size="13" font-weight="600" fill="#496A57">动量改善</text>
+  <text x="824" y="399" text-anchor="end" class="sans body ink">0.7800</text><text x="1084" y="399" text-anchor="end" class="sans body ink" font-weight="700">35%</text>
+  <line x1="91" y1="425" x2="1108" y2="425" class="rule"/>
 
-  <circle cx="111" cy="454" r="14" fill="#E8EFEA"/><text x="111" y="459" text-anchor="middle" class="sans label" fill="#496A57">1</text>
-  <text x="178" y="459" class="sans body ink" font-weight="700">510300</text>
-  <text x="276" y="459" class="sans body muted">沪深 300 ETF</text>
-  <rect x="534" y="438" width="96" height="27" rx="13.5" fill="#E8EFEA"/><text x="582" y="456" text-anchor="middle" class="sans label" fill="#496A57">动量改善</text>
-  <text x="1010" y="459" text-anchor="end" class="sans body ink" font-weight="700">35%</text>
-  <line x1="92" y1="482" x2="1104" y2="482" class="rule"/>
+  <circle cx="124" cy="464" r="14" fill="#EEF0F1"/><text x="124" y="469" text-anchor="middle" class="sans label" fill="#58676C">2</text>
+  <text x="185" y="470" class="sans body ink" font-weight="700">513100</text><text x="270" y="470" class="sans body muted">纳指 100 ETF</text>
+  <rect x="438" y="448" width="112" height="27" rx="13.5" fill="#EEF0F1"/><text x="494" y="466" text-anchor="middle" class="sans" font-size="13" font-weight="600" fill="#58676C">趋势偏强</text>
+  <text x="824" y="470" text-anchor="end" class="sans body ink">0.6900</text><text x="1084" y="470" text-anchor="end" class="sans body ink" font-weight="700">30%</text>
+  <line x1="91" y1="496" x2="1108" y2="496" class="rule"/>
 
-  <circle cx="111" cy="516" r="14" fill="#EEF0F1"/><text x="111" y="521" text-anchor="middle" class="sans label" fill="#58676C">2</text>
-  <text x="178" y="521" class="sans body ink" font-weight="700">513100</text>
-  <text x="276" y="521" class="sans body muted">纳指 100 ETF</text>
-  <rect x="534" y="500" width="96" height="27" rx="13.5" fill="#EEF0F1"/><text x="582" y="518" text-anchor="middle" class="sans label" fill="#58676C">趋势偏强</text>
-  <text x="1010" y="521" text-anchor="end" class="sans body ink" font-weight="700">30%</text>
-  <line x1="92" y1="544" x2="1104" y2="544" class="rule"/>
+  <circle cx="124" cy="535" r="14" fill="#F2EAE3"/><text x="124" y="540" text-anchor="middle" class="sans label" fill="#98684F">3</text>
+  <text x="185" y="541" class="sans body ink" font-weight="700">511010</text><text x="270" y="541" class="sans body muted">国债 ETF</text>
+  <rect x="438" y="519" width="112" height="27" rx="13.5" fill="#F2EAE3"/><text x="494" y="537" text-anchor="middle" class="sans" font-size="13" font-weight="600" fill="#98684F">防御配置</text>
+  <text x="824" y="541" text-anchor="end" class="sans body ink">0.5100</text><text x="1084" y="541" text-anchor="end" class="sans body ink" font-weight="700">20%</text>
+  <line x1="91" y1="567" x2="1108" y2="567" class="rule"/>
 
-  <circle cx="111" cy="578" r="14" fill="#F2EAE3"/><text x="111" y="583" text-anchor="middle" class="sans label" fill="#98684F">3</text>
-  <text x="178" y="583" class="sans body ink" font-weight="700">511010</text>
-  <text x="276" y="583" class="sans body muted">国债 ETF</text>
-  <rect x="534" y="562" width="96" height="27" rx="13.5" fill="#F2EAE3"/><text x="582" y="580" text-anchor="middle" class="sans label" fill="#98684F">防御配置</text>
-  <text x="1010" y="583" text-anchor="end" class="sans body ink" font-weight="700">20%</text>
-  <line x1="92" y1="606" x2="1104" y2="606" class="rule"/>
+  <rect x="91" y="592" width="1017" height="98" rx="8" fill="#F7F3EB"/>
+  <text x="114" y="621" class="sans" font-size="12" font-weight="700" letter-spacing="1.2" fill="#98684F">系统化策略计划</text>
+  <text x="114" y="651" class="sans body ink">趋势信号整体平稳，组合保留部分现金空间；单项仓位受风险预算约束。</text>
+  <text x="114" y="675" class="sans" font-size="13" fill="#6E7A7D">信号使用决策时点可得数据，权重依据波动目标和组合上限计算。</text>
 
-  <rect x="92" y="630" width="492" height="84" rx="8" fill="#F3F5F1"/>
-  <text x="112" y="656" class="sans smallcaps" fill="#496A72">AI 研究摘要</text>
-  <text x="112" y="684" class="sans body ink">中性偏积极 · 信心中等</text>
-  <text x="112" y="705" class="sans" font-size="13" fill="#6E7A7D">趋势尚稳；关注波动上升与海外利率变化。</text>
-  <rect x="600" y="630" width="504" height="84" rx="8" fill="#F7F1EA"/>
-  <text x="620" y="656" class="sans smallcaps" fill="#98684F">风险与观察</text>
-  <text x="620" y="684" class="sans body ink">保留组合风险预算与现金空间</text>
-  <text x="620" y="705" class="sans" font-size="13" fill="#6E7A7D">核实行情覆盖；波动扩大时重新评估仓位。</text>
+  <rect x="91" y="710" width="1017" height="258" rx="8" fill="#EEF2EF"/>
+  <rect x="91" y="710" width="5" height="258" rx="2.5" fill="#6D8B78"/>
+  <text x="114" y="742" class="sans" font-size="12" font-weight="700" letter-spacing="1.2" fill="#496A57">AI 研究摘要</text>
+  <text x="114" y="777" class="sans body ink" font-weight="700">立场：中性　·　信心：中等</text>
+  <text x="114" y="812" class="sans label" fill="#52656A">支持依据</text>
+  <circle cx="122" cy="838" r="3" fill="#6D8B78"/><text x="137" y="843" class="sans body ink">主要指数趋势尚稳，轮动信号保持正向。</text>
+  <text x="114" y="879" class="sans label" fill="#52656A">风险因素</text>
+  <circle cx="122" cy="905" r="3" fill="#B2744F"/><text x="137" y="910" class="sans body ink">短期波动上升，海外利率变化仍需观察。</text>
+  <text x="114" y="945" class="sans label" fill="#52656A">后续观察</text>
+  <text x="232" y="945" class="sans body ink">核实数据覆盖；若波动继续扩大，重新评估风险预算。</text>
 
-  <!-- Weekly review sheet -->
-  <g filter="url(#shadow)">
-    <rect x="56" y="786" width="1088" height="518" rx="12" fill="#FFFEFA"/>
-  </g>
-  <rect x="56" y="786" width="8" height="518" rx="4" fill="#B2744F"/>
-  <text x="92" y="828" class="sans smallcaps" fill="#98684F">02  /  WEEKLY REVIEW</text>
-  <text x="92" y="872" class="serif ink" font-size="30" font-weight="600">周度策略复盘</text>
-  <text x="92" y="902" class="sans muted" font-size="15">2026 年 10 月 8 日 — 10 月 14 日　·　示例周期</text>
-  <line x1="92" y1="926" x2="1104" y2="926" class="rule"/>
-
-  <rect x="92" y="950" width="316" height="104" rx="8" fill="#F3F5F1"/>
-  <text x="114" y="979" class="sans label muted">策略组合 · 示例</text>
-  <text x="114" y="1026" class="serif" font-size="34" font-weight="600" fill="#496A57">+1.8%</text>
-  <text x="245" y="1024" class="sans" font-size="14" fill="#6E7A7D">基准 +1.2%</text>
-
-  <rect x="426" y="950" width="316" height="104" rx="8" fill="#EEF1F2"/>
-  <text x="448" y="979" class="sans label muted">AI 前瞻观点 · 示例</text>
-  <text x="448" y="1026" class="serif ink" font-size="32" font-weight="600">6 <tspan class="sans" font-size="18" font-weight="500">/ 9</tspan></text>
-  <text x="548" y="1024" class="sans" font-size="14" fill="#6E7A7D">方向判断命中</text>
-
-  <rect x="760" y="950" width="344" height="104" rx="8" fill="#F7F1EA"/>
-  <text x="782" y="979" class="sans label muted">本周组合变化</text>
-  <text x="782" y="1011" class="sans body ink">排名调整 2 只 ETF</text>
-  <text x="782" y="1035" class="sans" font-size="14" fill="#6E7A7D">防御仓位维持</text>
-
-  <text x="92" y="1094" class="sans smallcaps muted">下周研究重点</text>
-  <line x1="92" y1="1110" x2="1104" y2="1110" class="rule"/>
-  <circle cx="103" cy="1142" r="4" fill="#496A72"/>
-  <text x="120" y="1148" class="sans body ink">跟踪波动变化与趋势延续，评估信号稳定性。</text>
-  <circle cx="103" cy="1182" r="4" fill="#496A72"/>
-  <text x="120" y="1188" class="sans body ink">复核样本区间与基准；仅纳入评估期已结束的观点。</text>
-  <line x1="92" y1="1220" x2="1104" y2="1220" class="rule"/>
-  <text x="92" y="1255" class="sans" font-size="13" fill="#7A817E">样例仅用于展示报告结构，不代表实际策略表现或收益承诺。</text>
-  <text x="1104" y="1255" text-anchor="end" class="sans smallcaps" fill="#496A72">ETF COMPASS</text>
+  <text x="91" y="993" class="sans" font-size="12" fill="#87918E">ETF Compass · 研究参考，请结合实际数据独立判断</text>
+  <text x="1108" y="993" text-anchor="end" class="sans" font-size="11" font-weight="700" letter-spacing="1" fill="#496A72">SAMPLE REPORT</text>
 </svg>

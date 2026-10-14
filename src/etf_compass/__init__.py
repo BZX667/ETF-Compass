@@ -13,7 +13,7 @@ from .notifications import (
     send_serverchan,
     send_wecom_markdown,
 )
-from .reports import render_daily_report, render_weekly_review
+from .reports import render_daily_report, render_daily_report_html, render_weekly_review
 from .risk import volatility_target_weights
 from .rotation import select_assets
 from .signals import (
@@ -36,6 +36,7 @@ __all__ = [
     "momentum_score",
     "select_assets",
     "render_daily_report",
+    "render_daily_report_html",
     "render_weekly_review",
     "score_forward_observations",
     "send_email",

@@ -45,10 +45,11 @@ def test_email_reads_credentials_from_environment_and_sends(monkeypatch):
     monkeypatch.setenv("SMTP_USER", "private@example.test")
     monkeypatch.setenv("SMTP_PASSWORD", "email-key-test-only")
     monkeypatch.setenv("REPORT_TO", "recipient@example.test")
-    send_email("Daily report", "No account details")
+    send_email("Daily report", "No account details", html_body="<h1>Styled report</h1>")
     assert calls["server"] == ("smtp.example.test", 465)
     assert calls["login"] == ("private@example.test", "email-key-test-only")
     assert calls["message"]["To"] == "recipient@example.test"
+    assert "Styled report" in calls["message"].get_body(preferencelist=("html",)).get_content()
 
 
 def test_email_reports_partial_recipient_rejection_without_addresses(monkeypatch):
