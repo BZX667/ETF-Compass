@@ -28,31 +28,11 @@
 
 ## 工作流程
 
-```mermaid
-%%{init: {"theme":"base", "themeVariables":{"primaryColor":"#eee9f7","primaryTextColor":"#332b45","primaryBorderColor":"#8875aa","lineColor":"#77628f","secondaryColor":"#f4f0f8","tertiaryColor":"#faf8fc","clusterBkg":"#f8f5fb","clusterBorder":"#c9bdd8"}}}%%
-flowchart TB
-    M["行情与研究资料"]
-    subgraph S["系统化策略"]
-        direction LR
-        S1["信号排名"] --> S2["ETF 轮动"] --> S3["仓位与风险"]
-    end
-    subgraph A["AI 独立研究"]
-        direction LR
-        A1["证据整理"] --> A2["观点检验"] --> A3["风险评估"]
-    end
-    M --> S
-    M --> A
-    S --> R["投资决策参考"]
-    A --> R
-    classDef input fill:#f0ebf6,stroke:#8875aa,color:#332b45
-    classDef strategy fill:#e8e1f1,stroke:#77628f,color:#332b45
-    classDef research fill:#f1edf7,stroke:#8875aa,color:#332b45
-    classDef output fill:#ddd3ea,stroke:#67547d,color:#2c2439,stroke-width:2px
-    class M input
-    class S1,S2,S3 strategy
-    class A1,A2,A3 research
-    class R output
-```
+<div align="center">
+  <img src="assets/workflow.svg" alt="ETF Compass 工作流程：量化策略与 AI 多角色协作研究并行，AI 经过多轮正反讨论、风险审查和组合经理总结，最终输出独立评估" width="100%">
+</div>
+
+量化规则生成轮动与仓位计划；AI 研究团队先整理证据，再由多头与空头围绕证据多轮讨论，随后完成风险审查并形成独立评估。AI 评估不覆盖规则策略计划。
 
 ## 快速开始
 

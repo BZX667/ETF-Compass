@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1000" viewBox="0 0 1200 1000" role="img" aria-labelledby="title desc">
+  <title id="title">ETF Compass 工作流程</title>
+  <desc id="desc">量化策略与 AI 协作研究并行。AI 研究包括事实分析、多头与空头多轮讨论、风险审查和组合经理总结，最终与规则策略计划一起供使用者判断。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#9AA0A6"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#34A853"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#EA4335"/>
+    </marker>
+    <style>
+      text { font-family: Inter, "Noto Sans CJK SC", "Microsoft YaHei", Arial, sans-serif; fill: #202124; }
+      .title { font-size: 27px; font-weight: 700; }
+      .subtitle { font-size: 15px; fill: #5F6368; }
+      .panel-title { font-size: 18px; font-weight: 700; }
+      .label { font-size: 16px; font-weight: 600; }
+      .small { font-size: 13px; fill: #5F6368; }
+      .card { stroke-width: 1.6; rx: 12; }
+      .connector { fill: none; stroke: #9AA0A6; stroke-width: 2; marker-end: url(#arrow); }
+      .dotted { fill: none; stroke: #9AA0A6; stroke-width: 1.8; stroke-dasharray: 5 5; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1200" height="1000" fill="#FFFFFF"/>
+  <text class="title" x="64" y="48">ETF Compass 工作流程</text>
+  <text class="subtitle" x="64" y="76">规则策略与 AI 协作研究并行，为投资决策提供两类独立参考</text>
+
+  <rect class="card" x="435" y="98" width="330" height="58" fill="#E8F0FE" stroke="#4285F4"/>
+  <text class="label" x="600" y="134" text-anchor="middle">行情与研究资料</text>
+
+  <path class="connector" d="M600 156 V184 H295 V270"/>
+  <path class="connector" d="M600 156 V184 H860 V270"/>
+
+  <rect x="48" y="212" width="500" height="572" rx="18" fill="#F8FBFF" stroke="#D2E3FC" stroke-width="1.5"/>
+  <rect x="572" y="212" width="580" height="572" rx="18" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5"/>
+  <text class="panel-title" x="298" y="246" text-anchor="middle" fill="#188038">系统化策略与组合管理</text>
+  <text class="panel-title" x="862" y="246" text-anchor="middle" fill="#1967D2">TradingAgents 风格的 AI 协作研究</text>
+
+  <rect class="card" x="88" y="270" width="420" height="64" fill="#E6F4EA" stroke="#34A853"/>
+  <text class="label" x="298" y="309" text-anchor="middle">量化信号与 ETF 排名</text>
+  <path class="connector" d="M298 334 V363"/>
+
+  <rect class="card" x="88" y="366" width="420" height="64" fill="#E6F4EA" stroke="#34A853"/>
+  <text class="label" x="298" y="405" text-anchor="middle">ETF 筛选与轮动</text>
+  <path class="connector" d="M298 430 V459"/>
+
+  <rect class="card" x="88" y="462" width="420" height="64" fill="#FEF7E0" stroke="#FBBC04"/>
+  <text class="label" x="298" y="501" text-anchor="middle">仓位分配与组合风险控制</text>
+  <path class="connector" d="M298 526 V555"/>
+
+  <rect class="card" x="88" y="558" width="420" height="64" fill="#FEF7E0" stroke="#FBBC04"/>
+  <text class="label" x="298" y="597" text-anchor="middle">目标权重与机械策略计划</text>
+  <text class="small" x="298" y="663" text-anchor="middle">规则生成组合信号、仓位与风险约束</text>
+
+  <rect class="card" x="650" y="270" width="420" height="62" fill="#E8F0FE" stroke="#4285F4"/>
+  <text class="label" x="860" y="297" text-anchor="middle">事实分析员</text>
+  <text class="small" x="860" y="318" text-anchor="middle">按研究角色整理给定证据</text>
+  <path class="connector" d="M860 332 V348 H743 V402"/>
+
+  <rect x="610" y="364" width="500" height="194" rx="14" fill="#FAFAFA" stroke="#DADCE0" stroke-width="1.4" stroke-dasharray="6 5"/>
+  <text class="small" x="860" y="388" text-anchor="middle">多轮正反论证 · 默认 2 轮，可配置 1–5 轮</text>
+  <rect class="card" x="638" y="410" width="210" height="76" fill="#E6F4EA" stroke="#34A853"/>
+  <text class="label" x="743" y="440" text-anchor="middle">多头研究员</text>
+  <text class="small" x="743" y="464" text-anchor="middle">提出证据支持的论点</text>
+  <rect class="card" x="872" y="410" width="210" height="76" fill="#FCE8E6" stroke="#EA4335"/>
+  <text class="label" x="977" y="440" text-anchor="middle">空头研究员</text>
+  <text class="small" x="977" y="464" text-anchor="middle">质疑论据并识别风险</text>
+  <path d="M848 448 H866" fill="none" stroke="#34A853" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <path d="M977 489 V526 H743 V491" fill="none" stroke="#EA4335" stroke-width="1.8" stroke-dasharray="5 5" marker-end="url(#arrow-red)"/>
+  <text class="small" x="860" y="548" text-anchor="middle">下一轮回应前轮观点</text>
+
+  <path class="connector" d="M860 558 V582"/>
+  <rect class="card" x="650" y="586" width="420" height="62" fill="#FEF7E0" stroke="#FBBC04"/>
+  <text class="label" x="860" y="613" text-anchor="middle">风险审查员</text>
+  <text class="small" x="860" y="634" text-anchor="middle">检查假设、风险情景与反证</text>
+  <path class="connector" d="M860 648 V674"/>
+  <rect class="card" x="650" y="678" width="420" height="62" fill="#F3E8FD" stroke="#A142F4"/>
+  <text class="label" x="860" y="705" text-anchor="middle">组合经理</text>
+  <text class="small" x="860" y="726" text-anchor="middle">汇总证据、分歧与风险，形成独立评估</text>
+
+  <text class="small" x="860" y="575" text-anchor="middle">策略计划仅作为风险审查上下文</text>
+  <path class="dotted" d="M508 590 H570 V617 H646"/>
+
+  <path class="connector" d="M298 622 V824"/>
+  <path class="connector" d="M860 740 V824"/>
+  <rect class="card" x="88" y="828" width="420" height="64" fill="#E6F4EA" stroke="#34A853"/>
+  <text class="label" x="298" y="867" text-anchor="middle">机械策略计划</text>
+  <rect class="card" x="650" y="828" width="420" height="64" fill="#F3E8FD" stroke="#A142F4"/>
+  <text class="label" x="860" y="867" text-anchor="middle">AI 独立评估</text>
+
+  <path class="connector" d="M298 892 V920 H600 V934"/>
+  <path class="connector" d="M860 892 V920 H600 V934"/>
+  <rect class="card" x="435" y="936" width="330" height="52" fill="#F1F3F4" stroke="#5F6368" stroke-width="2"/>
+  <text class="label" x="600" y="969" text-anchor="middle">供使用者综合判断</text>
+</svg>
