@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">ETF Compass</title>
+  <desc id="desc">Systematic ETF research, risk-aware allocation, and independent AI evaluation</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07152d"/>
+      <stop offset="0.58" stop-color="#102a4a"/>
+      <stop offset="1" stop-color="#123d53"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#42d6c4"/>
+      <stop offset="1" stop-color="#a6f2d4"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#32c8b5" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#32c8b5" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#9cc5d3" stroke-opacity="0.08" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="360" rx="28" fill="url(#bg)"/>
+  <rect width="1200" height="360" rx="28" fill="url(#grid)"/>
+  <circle cx="950" cy="160" r="250" fill="url(#glow)"/>
+
+  <g transform="translate(76 78)">
+    <circle cx="42" cy="42" r="38" fill="none" stroke="#6ee7d4" stroke-width="2" stroke-opacity="0.85"/>
+    <circle cx="42" cy="42" r="27" fill="none" stroke="#6ee7d4" stroke-width="1" stroke-opacity="0.28"/>
+    <path d="M42 8V20M42 64V76M8 42H20M64 42H76" stroke="#b8fff0" stroke-width="2" stroke-linecap="round"/>
+    <path d="M55 28L47 49L29 57L37 37Z" fill="url(#line)"/>
+    <circle cx="42" cy="42" r="3.5" fill="#f4b96b"/>
+  </g>
+
+  <text x="76" y="190" fill="#f6fbff" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="62" font-weight="750" letter-spacing="-1.8">ETF Compass</text>
+  <text x="80" y="235" fill="#b9d4e2" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="21" font-weight="450">Systematic rotation · Risk-aware sizing · Independent AI view</text>
+  <g transform="translate(80 276)">
+    <rect width="172" height="34" rx="17" fill="#1b4960" stroke="#4ed6c2" stroke-opacity="0.45"/>
+    <circle cx="18" cy="17" r="4" fill="#6ee7d4"/>
+    <text x="31" y="22" fill="#d8f8f2" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="13" font-weight="600">Research toolkit</text>
+  </g>
+
+  <g transform="translate(770 66)">
+    <rect x="0" y="0" width="355" height="224" rx="20" fill="#0a1c33" fill-opacity="0.76" stroke="#b4d5e0" stroke-opacity="0.18"/>
+    <text x="24" y="34" fill="#8baebe" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1.8">RESEARCH FLOW</text>
+    <path d="M25 177H330M25 133H330M25 89H330M25 45H330" stroke="#b4d5e0" stroke-opacity="0.1"/>
+    <path d="M28 162L78 146L124 154L168 108L211 119L260 66L319 52" fill="none" stroke="url(#line)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M28 162L78 146L124 154L168 108L211 119L260 66L319 52V184H28Z" fill="url(#line)" opacity="0.08"/>
+    <g fill="#f4b96b" stroke="#0a1c33" stroke-width="3">
+      <circle cx="78" cy="146" r="5"/><circle cx="168" cy="108" r="5"/><circle cx="260" cy="66" r="5"/><circle cx="319" cy="52" r="5"/>
+    </g>
+    <g transform="translate(25 197)" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="10" font-weight="600" fill="#9dbac8">
+      <text x="0" y="0">SIGNAL</text><text x="96" y="0">RISK</text><text x="184" y="0">REVIEW</text><text x="269" y="0">DECIDE</text>
+    </g>
+  </g>
+  <path d="M1138 26h24M1150 14v24" stroke="#6ee7d4" stroke-width="1.5" stroke-opacity="0.55"/>
+</svg>
