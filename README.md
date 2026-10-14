@@ -32,12 +32,32 @@ flowchart LR
 
 ## 机械策略 + AI 分析
 
-| 机械策略 | 用途 |
-| --- | --- |
-| 海龟通道突破 | 跟踪近期价格区间突破与退出 |
-| 标准化动量、双动量 | 衡量相对强度，并过滤绝对动量为负的标的 |
-| RSI 均值回归 | 识别短期超卖及修复状态 |
-| ATR 波动率突破 | 结合均线与真实波幅跟踪趋势 |
+<table width="100%">
+  <thead>
+    <tr>
+      <th align="left" width="30%">机械策略</th>
+      <th align="left" width="70%">核心作用</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left" valign="top"><strong>海龟通道突破</strong></td>
+      <td align="left" valign="top">跟踪价格突破近期区间及趋势退出信号。</td>
+    </tr>
+    <tr>
+      <td align="left" valign="top"><strong>标准化动量、双动量</strong></td>
+      <td align="left" valign="top">比较 ETF 相对强度，并过滤绝对动量为负的标的。</td>
+    </tr>
+    <tr>
+      <td align="left" valign="top"><strong>RSI 均值回归</strong></td>
+      <td align="left" valign="top">识别短期超卖状态与潜在修复信号。</td>
+    </tr>
+    <tr>
+      <td align="left" valign="top"><strong>ATR 波动率突破</strong></td>
+      <td align="left" valign="top">结合均线和真实波幅跟踪趋势变化。</td>
+    </tr>
+  </tbody>
+</table>
 
 多信号可等权合议，用于横截面排名和 Top-K 轮动；持仓缓冲减少排名边缘的频繁切换。仓位模块按历史波动估算风险目标，并限制单项权重和组合总敞口。计算信号时应使用决策时点可获得的数据，并按实际执行时点评估结果。
 
