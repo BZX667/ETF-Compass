@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import json
+import math
+from collections.abc import Iterable
 from dataclasses import dataclass
+from datetime import date
 from typing import Any
 
 
@@ -16,6 +19,69 @@ class IndependentAssessment:
     evidence: tuple[str, ...]
     risks: tuple[str, ...]
     watch_items: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ForwardObservation:
+    """A saved AI view paired with a later asset and benchmark return."""
+
+    observed_on: date
+    resolved_on: date
+    stance: str
+    asset_return: float
+    benchmark_return: float
+
+
+@dataclass(frozen=True)
+class ForwardScorecard:
+    """Directional quality of resolved positive/cautious AI views."""
+
+    as_of: date
+    evaluated: int
+    directional: int
+    hits: int
+    hit_rate: float | None
+    mean_signed_excess: float | None
+
+
+def score_forward_observations(
+    observations: Iterable[ForwardObservation],
+    *,
+    as_of: date,
+) -> ForwardScorecard:
+    """Score only views whose outcome was observable by ``as_of``.
+
+    Positive views count as correct when the asset beats its benchmark;
+    cautious views count as correct when it underperforms. Neutral views are
+    counted as evaluated but excluded from directional hit rate and mean
+    signed excess. Returns are decimal fractions (for example, ``0.02``).
+    """
+    resolved: list[ForwardObservation] = []
+    for item in observations:
+        if item.observed_on >= item.resolved_on:
+            raise ValueError("resolved_on must follow observed_on")
+        if item.stance not in {"positive", "neutral", "cautious"}:
+            raise ValueError("stance must be positive, neutral, or cautious")
+        if not all(math.isfinite(value) for value in (item.asset_return, item.benchmark_return)):
+            raise ValueError("forward returns must be finite")
+        if item.resolved_on <= as_of:
+            resolved.append(item)
+
+    directional = [item for item in resolved if item.stance != "neutral"]
+    signed_excess = [
+        (1.0 if item.stance == "positive" else -1.0)
+        * (item.asset_return - item.benchmark_return)
+        for item in directional
+    ]
+    hits = sum(value > 0 for value in signed_excess)
+    return ForwardScorecard(
+        as_of=as_of,
+        evaluated=len(resolved),
+        directional=len(directional),
+        hits=hits,
+        hit_rate=(hits / len(directional)) if directional else None,
+        mean_signed_excess=(sum(signed_excess) / len(signed_excess)) if signed_excess else None,
+    )
 
 
 def build_assessment_prompt(market_facts: str, mechanical_plan: str) -> str:
