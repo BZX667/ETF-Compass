@@ -1,47 +1,74 @@
 <div align="center">
 
-<img src="assets/etf-compass-banner.svg" alt="ETF Compass — systematic ETF research with independent AI evaluation" width="100%">
+<img src="assets/etf-compass-banner.svg" alt="ETF Compass — systematic ETF strategies and independent AI research" width="100%">
 
-### 让规则负责组合，让 AI 提供独立视角
+### 让机械策略保持纪律，让 AI 分析拓展视角
 
-一个模块化的 ETF 投资研究 Agent：机械轮动、仓位风险控制与 LLM 评估，各自有清晰边界。
+**ETF Compass** 是面向 ETF 投资研究的 AI Agent：以可验证的量化策略构建组合计划，再用多视角 AI 分析补充信息、质疑假设、识别风险。
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-35A16B.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Research%20Prototype-E9A23B.svg)](#项目状态)
 
-**[English](#english)** · **[快速开始](#快速开始)** · **[系统设计](#系统设计)**
+[English](#english) · [快速开始](#快速开始) · [系统流程](#系统流程)
 
 </div>
 
-ETF Compass 是一个轻量、可审阅的 ETF 投资研究 Agent。它把趋势、动量、均值回归和波动突破等规则信号合成为候选排序，经过仓位风险控制形成机械计划；LLM 则按 TradingAgents 风格组织分析师、多空观点、风险审查和组合经理总结，给出独立评估。AI 意见不会改写机械计划，也不会触发交易。
+ETF Compass 将两种能力放进同一研究流程：**机械策略**按明确规则筛选 ETF、控制仓位并形成可复核的计划；**AI 分析**从技术、资金和产业等角度阅读最新市场信息，通过多空讨论和风险复核补充判断。规则提供一致性，AI 提供信息整合与反方审视，最终结论保留证据和不确定性，供使用者判断。
 
-## 系统设计
+## 系统流程
 
 ```mermaid
 flowchart LR
-    A[行情数据] --> B[多策略信号<br/>趋势 · 动量 · 反转 · 突破]
-    B --> C[等权合议与轮动<br/>Top-K + 持仓缓冲]
-    C --> D[仓位控制<br/>波动率目标 + 敞口上限]
-    D --> E[机械计划]
-    A --> F[分析师视角<br/>技术 · 资金 · 产业]
-    F --> G[多空讨论]
-    G --> H[风险审查与组合经理]
-    E -. 独立复核 .-> H
-    H --> I[结构化观点与风险提示]
-    E --> J[调用者自行决策与执行]
+    A[行情数据源] --> B[更新最新可用行情]
+    B --> C[机械策略信号]
+    C --> D[信号合议与 ETF 轮动]
+    D --> E[仓位预算与风险控制]
+    E --> F[机械组合计划]
+    B --> G[技术 · 资金 · 产业分析]
+    G --> H[多空观点讨论]
+    H --> I[风险复核与组合经理总结]
+    F -. 作为评估背景 .-> I
+    F --> J[日报与执行参考]
+    I --> J
+    J --> K[周度信号与组合复盘]
 ```
 
-| 模块 | 做什么 | 保持的边界 |
-| --- | --- | --- |
-| 轮动筛选 | 根据调用者提供的分数选出 Top-K，并支持持仓缓冲 | 不拉取行情、不替用户生成分数 |
-| 策略信号 | 海龟通道突破、标准化动量、双动量、RSI 均值回归、ATR 波动率突破；支持等权合议 | 信号在当前 bar 收盘后形成，执行时点由调用者控制 |
-| 仓位控制 | 根据历史波动估算权重，并限制单资产和总敞口 | 输入必须截止于计划执行期之前 |
-| LLM 评估 | 多角色分析、正反观点多轮讨论、风险审查、组合经理结构化总结 | 模型只做独立评估，不改写机械计划、不下单 |
+日常流程应在生成信号前刷新行情，并检查数据时间与完整性。接入应用可据此生成日报、按周整理模型前瞻评估和轮动表现，并配置邮件或其他推送方式。当前公开 Python 包提供策略、仓位和 AI 讨论核心；具体行情供应商、定时任务与消息投递由部署层接入。
+
+## 机械策略与仓位控制
+
+ETF Compass 提供多类互补的价格信号，合议后用于横截面轮动和候选筛选：
+
+| 策略 | 核心思路 |
+| --- | --- |
+| 海龟通道突破 | 观察价格突破近期高低区间，跟随趋势变化 |
+| 标准化动量 | 衡量一段时间的相对强弱，并按波动水平标准化 |
+| 双动量 | 同时比较资产间强弱，并检查绝对动量方向 |
+| RSI 均值回归 | 识别短期超卖状态，等待价格修复信号 |
+| ATR 波动率突破 | 结合均线与真实波幅识别趋势突破和退出状态 |
+
+多信号可以等权合议。组合侧提供 Top-K 与持仓缓冲，并按历史波动估算目标权重，限制单项仓位和总敞口。信号只使用已观测行情；策略执行时点、成本和组合规则应在回测与部署中保持一致。
+
+## AI 多视角分析
+
+AI 层采用 TradingAgents 风格的协作流程，对机械计划提供独立复核：
+
+1. 技术、资金和产业分析角色分别整理输入的市场事实。
+2. 多方与审慎方围绕证据展开多轮讨论，呈现支持理由、反例和信息缺口。
+3. 风险角色检查下行情景和关键假设，组合经理将结论整理为结构化观点、信心、风险与观察项。
+
+AI 的作用是补充分析、检验论据和提示风险。组合信号仍由机械策略计算，模型评估不会覆盖策略结果或生成交易指令。
+
+模型供应商可替换。公开包通过调用者提供的 `complete(prompt)` 适配函数连接模型服务；可在应用层配置兼容的 API。多角色和多轮讨论会产生多次模型请求，成本随角色数量和讨论轮数变化。**API key 只应保存在本地环境变量或密钥管理服务中，不要写入源码、README、日志或 Git 历史。**本仓库不包含任何个人 API key。
+
+## 日报与周度复盘
+
+部署后的日常工作流可将最新行情、轮动结果、目标仓位、风险提示和 AI 评估整理成日报；周度复盘可汇总前瞻信号表现、轮动质量及需要继续验证的问题。推送渠道和运行时间由部署环境配置，公开核心包不绑定个人账户、邮箱或推送凭据。
 
 ## 快速开始
 
-需要 Python 3.11 或更高版本。
+需要 Python 3.11 或更高版本：
 
 ```bash
 git clone https://github.com/BZX667/ETF-Compass.git
@@ -49,80 +76,47 @@ cd ETF-Compass
 python -m pip install -e '.[dev]'
 ```
 
-## 示例
+示例展示如何生成策略信号、筛选候选和计算仓位。行情面板、历史收益、持仓快照、事实摘要及 `my_model_adapter` 由配置的数据源和部署应用提供：
 
 ```python
 import pandas as pd
 
-from etf_compass import select_assets, volatility_target_weights
+from etf_compass import equal_weight_ensemble, momentum_score, select_assets
+from etf_compass import turtle_breakout, volatility_target_weights
 from etf_compass.agents import run_trading_agents_review
-from etf_compass.signals import equal_weight_ensemble, momentum_score, turtle_breakout
 
-close = pd.DataFrame(
-    {
-        "ETF_A": [100 + i * 0.8 + (i % 5) for i in range(260)],
-        "ETF_B": [100 + i * 0.4 + (i % 7) for i in range(260)],
-        "ETF_C": [100 + i * 0.2 + (i % 3) for i in range(260)],
-    }
-)
+# close 为按日期索引、按 ETF 代码分列的最新价格面板。
 signals = {
     "momentum": momentum_score(close),
     "turtle": turtle_breakout(close).astype(float),
 }
-combined = equal_weight_ensemble(signals)
-scores = combined.iloc[-1].dropna()
-selected = select_assets(scores, top_k=2, held=[], buffer_multiple=1.5)
+scores = equal_weight_ensemble(signals).iloc[-1].dropna()
+selected = select_assets(scores, top_k=4, held=current_holdings, buffer_multiple=1.25)
 
-# 收益数据截至计划执行期之前。
-returns = pd.DataFrame(
-    {
-        "ETF_A": [0.010, -0.004, 0.006, 0.002] * 5,
-        "ETF_B": [0.003, 0.005, -0.002, 0.004] * 5,
-        "ETF_C": [-0.006, 0.002, 0.001, 0.003] * 5,
-    }
-)
+# returns 使用决策时点之前的历史收益，避免前视数据。
 weights = volatility_target_weights(
     returns, selected, target_volatility=0.15, lookback=20, max_weight=0.35
 )
 
 review = run_trading_agents_review(
-    facts={
-        "technical": "在这里填写已核实的价格与趋势事实。",
-        "industry": "在这里填写已核实的产业信息。",
-    },
-    mechanical_plan=f"候选标的：{selected}；目标权重：{weights.to_dict()}",
-    complete=my_model_adapter,  # 由应用层连接你选择的 LLM 服务
+    facts={"technical": technical_facts, "industry": industry_facts},
+    mechanical_plan=f"目标权重：{weights.to_dict()}",
+    complete=my_model_adapter,  # 在应用层接入你选择的模型与 API key
     rounds=2,
 )
 ```
 
-## 安装后包含什么
-
-- **多策略信号**：海龟突破、标准化动量、双动量、RSI 均值回归、ATR 波动率突破，以及等权信号合议。
-- **规则轮动**：Top-K 选择与持仓缓冲。
-- **仓位与风险控制**：逆波动权重、目标波动率、单资产和组合敞口上限。
-- **TradingAgents 风格讨论**：多个分析视角提供事实摘要，多空研究员讨论，风险角色复核，组合经理输出结构化观点。
-- **多模型接入**：不绑定供应商；调用者传入模型适配函数即可连接支持的服务。
-- **日报与周复盘工作流**：可汇总日内轮动、仓位和模型评估形成日报，并按周复盘信号表现。定时任务和消息推送由应用层接入。
-- **安全与可审阅**：本库不读取或保存 API key，不存账户和交易记录；行情源、密钥管理与执行由调用者控制。
-
-### AI 如何接入
-
-`run_trading_agents_review()` 接收事实摘要、机械计划和调用者提供的 `complete(prompt)` 模型适配函数。分析师按技术、资金、产业等事实分工，多空角色可进行多轮讨论，再由风险审查和组合经理形成 JSON 评估。模型供应商可替换；在自己的应用中从环境变量或密钥管理服务读取对应 API key，并在本地创建适配函数。**不要把 key 写进代码、README、日志或提交历史。**
-
-## 开发
+## 开发与验证
 
 ```bash
 python -m pytest
 ```
 
-## 项目状态
+回测表现受样本区间、标的范围、数据质量、交易成本和执行时点影响。请检查样本外结果与数据时序，不把历史指标或模型观点视为未来收益保证。
 
-ETF Compass 目前处于研究原型阶段，接口可能随验证继续调整。策略信号和多角色评估模块可在本地组合使用；行情供应商、模型调用、日报周报的生成与投递仍由接入应用负责。请独立检查数据、执行时点、成本和样本外表现。
+## 项目状态与风险说明
 
-## 风险说明
-
-本项目仅用于技术研究，不构成证券投资建议、交易邀约或收益承诺。市场有风险，策略和模型输出都可能产生损失；历史表现不代表未来结果。
+ETF Compass 目前处于研究原型阶段，模块接口仍可能调整。行情供应商、账户管理、自动调度和推送属于部署集成内容。本项目仅用于技术研究，不构成投资建议或交易邀约；金融市场存在本金损失风险，请独立评估并验证所有策略与模型输出。
 
 ---
 
@@ -130,8 +124,85 @@ ETF Compass 目前处于研究原型阶段，接口可能随验证继续调整�
 
 ## English
 
-ETF Compass is a lightweight ETF research agent. It includes Turtle-style channel breakout, normalized momentum, dual momentum, RSI mean reversion, and ATR volatility breakout signals, followed by equal-weight aggregation, buffered Top-K rotation, and volatility-aware sizing. Its TradingAgents-style review flow uses analyst roles, bull/bear discussion, risk review, and a structured portfolio-manager summary.
+### Systematic strategies for discipline. AI analysis for perspective.
 
-**Provider-neutral:** pass your own model adapter and credentials through your application environment. No API keys, brokerage integration, account storage, or bundled market-data feed are included. Daily reports and weekly reviews can be assembled by an application layer; scheduling and delivery are caller-managed.
+**ETF Compass** is an AI agent for ETF investment research. It combines rule-based portfolio construction with multi-perspective AI analysis: systematic signals produce a reviewable plan, while AI organizes current market evidence, challenges assumptions, and highlights risks.
 
-See [Quick start](#快速开始), [System design](#系统设计), and the runnable [example](#示例) above. Research software only; no investment advice or return guarantees.
+The two approaches contribute different strengths. Mechanical strategies apply consistent, testable rules. AI analysis synthesizes technical, flow, and industry information and brings forward counterarguments. The result is a more complete research view; the portfolio signal remains rule-based, and the final decision remains with the user.
+
+### Workflow
+
+Before calculating signals, the integrated application fetches the latest available market data from its configured provider and checks timestamps and completeness. Mechanical signals are combined into an ETF rotation and position plan. In parallel, analyst roles review market facts, bull and cautious perspectives debate the evidence, and risk review plus a portfolio manager produce a structured assessment. Daily reports can bring together the plan and AI view; weekly reviews can summarize forward-signal quality and rotation results. Scheduling and delivery are configured by the deployment application.
+
+### Strategy toolkit
+
+ETF Compass combines complementary price-based signals for ETF ranking and portfolio construction:
+
+| Strategy | Approach |
+| --- | --- |
+| Turtle-style channel breakout | Follows price breaks above or below recent channel levels |
+| Normalized momentum | Measures trailing relative strength and scales it by its variability |
+| Dual momentum | Combines cross-asset ranking with a positive absolute-momentum filter |
+| RSI mean reversion | Identifies short-term oversold conditions and recovery |
+| ATR volatility breakout | Uses a moving-average band and true range to identify breakouts and exits |
+
+Signals can be combined with equal weights and used for buffered Top-K rotation. Portfolio sizing supports volatility targeting, per-asset caps, and a total exposure limit. Use point-in-time data and align backtests with the intended execution timing and costs.
+
+### TradingAgents-style AI review
+
+Technical, flow, and industry analyst roles summarize supplied facts. Bull and cautious researchers debate the evidence over configurable rounds. A risk reviewer checks downside cases, and a portfolio manager returns a structured view with confidence, evidence, risks, and watch items. The AI assessment is advisory: it does not replace the mechanical signal or issue orders.
+
+The model provider is configurable through a caller-supplied `complete(prompt)` adapter. Multiple roles and debate rounds result in multiple model calls, so request volume depends on the configured workflow. API credentials belong in the application environment or a secrets manager. **Do not commit API keys to source code, documentation, logs, or Git history. No personal API key is included in this repository.**
+
+### Daily reports and weekly review
+
+In a deployed workflow, the latest quotes, rotation results, target weights, risk notes, and AI assessment can be assembled into a daily report. Weekly reviews can summarize forward-signal quality, rotation results, and open research questions. The deployment application configures the schedule and delivery channel; this package does not include a personal account, mailbox, or push credential.
+
+### Quick start
+
+Requires Python 3.11 or later:
+
+```bash
+git clone https://github.com/BZX667/ETF-Compass.git
+cd ETF-Compass
+python -m pip install -e '.[dev]'
+```
+
+The example below assumes the deployment application has prepared the price and return panels, the current holdings snapshot, verified facts, and a configured model adapter:
+
+```python
+import pandas as pd
+
+from etf_compass import equal_weight_ensemble, momentum_score, select_assets
+from etf_compass import turtle_breakout, volatility_target_weights
+from etf_compass.agents import run_trading_agents_review
+
+signals = {
+    "momentum": momentum_score(close),
+    "turtle": turtle_breakout(close).astype(float),
+}
+scores = equal_weight_ensemble(signals).iloc[-1].dropna()
+selected = select_assets(scores, top_k=4, held=current_holdings, buffer_multiple=1.25)
+
+# Use only returns observed before the intended execution period.
+weights = volatility_target_weights(
+    returns, selected, target_volatility=0.15, lookback=20, max_weight=0.35
+)
+
+review = run_trading_agents_review(
+    facts={"technical": technical_facts, "industry": industry_facts},
+    mechanical_plan=f"Target weights: {weights.to_dict()}",
+    complete=my_model_adapter,
+    rounds=2,
+)
+```
+
+### Development and risk
+
+```bash
+python -m pytest
+```
+
+ETF Compass is a research prototype, not investment advice or a trading solicitation. Backtest results depend on the sample, universe, data quality, transaction costs, and execution timing. Historical results and model assessments do not guarantee future performance. Validate data, assumptions, and out-of-sample behavior independently.
+
+ETF Compass is a research prototype, not investment advice. Historical results and model assessments do not guarantee future performance. Validate data, assumptions, transaction costs, and out-of-sample behavior independently.
