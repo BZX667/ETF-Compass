@@ -34,7 +34,9 @@ flowchart LR
     J --> K[周度信号与组合复盘]
 ```
 
-日常流程应在生成信号前刷新行情，并检查数据时间与完整性。接入应用可据此生成日报、按周整理模型前瞻评估和轮动表现，并配置邮件或其他推送方式。当前公开 Python 包提供策略、仓位和 AI 讨论核心；具体行情供应商、定时任务与消息投递由部署层接入。
+日常流程应在生成信号前刷新行情，并检查数据时间与完整性。接入应用可据此生成日报、按周整理模型前瞻评估和轮动表现，并配置邮件或其他推送方式。当前公开 Python 包提供策略、仓位和 AI 讨论核心；**日报/周报编排、持久化、定时任务和消息投递尚未包含在这个包内**，由部署层接入。
+
+当前包接收调用方准备好的行情面板、收益序列和事实摘要，不直接连接行情供应商。完整应用应在计算信号前拉取最新可用数据，并将数据时间戳、缺失值和覆盖率传入报告；不要把陈旧缓存描述为最新行情。
 
 ## 机械策略与仓位控制
 
@@ -50,21 +52,83 @@ ETF Compass 提供多类互补的价格信号，合议后用于横截面轮动�
 
 多信号可以等权合议。组合侧提供 Top-K 与持仓缓冲，并按历史波动估算目标权重，限制单项仓位和总敞口。信号只使用已观测行情；策略执行时点、成本和组合规则应在回测与部署中保持一致。
 
-## AI 多视角分析
+## AI 多视角分析（参考 [TradingAgents](https://github.com/TauricResearch/TradingAgents)）
 
-AI 层采用 TradingAgents 风格的协作流程，对机械计划提供独立复核：
+AI 层采用 [TradingAgents](https://github.com/TauricResearch/TradingAgents) 风格的协作流程，对机械计划提供独立复核：
 
-1. 技术、资金和产业分析角色分别整理输入的市场事实。
+1. 调用方可以提供技术、资金、产业等事实组；每组由对应分析角色整理证据和不确定性。
 2. 多方与审慎方围绕证据展开多轮讨论，呈现支持理由、反例和信息缺口。
 3. 风险角色检查下行情景和关键假设，组合经理将结论整理为结构化观点、信心、风险与观察项。
 
 AI 的作用是补充分析、检验论据和提示风险。组合信号仍由机械策略计算，模型评估不会覆盖策略结果或生成交易指令。
 
-模型供应商可替换。公开包通过调用者提供的 `complete(prompt)` 适配函数连接模型服务；可在应用层配置兼容的 API。多角色和多轮讨论会产生多次模型请求，成本随角色数量和讨论轮数变化。**API key 只应保存在本地环境变量或密钥管理服务中，不要写入源码、README、日志或 Git 历史。**本仓库不包含任何个人 API key。
+模型供应商可替换。公开包通过调用者提供的 `complete(prompt)` 适配函数连接模型服务；可在应用层配置兼容的 API。`facts` 中的每个输入组会作为一个分析角色，多方与审慎方按配置轮数讨论，然后由风险审查和组合研究经理形成结构化评估。多角色和多轮讨论会产生多次模型请求，成本随输入组和讨论轮数变化。**API key 只应保存在本地环境变量或密钥管理服务中，不要写入源码、README、日志或 Git 历史。**本仓库不包含任何个人 API key。
 
-## 日报与周度复盘
+## 日报、周度复盘与推送
 
-部署后的日常工作流可将最新行情、轮动结果、目标仓位、风险提示和 AI 评估整理成日报；周度复盘可汇总前瞻信号表现、轮动质量及需要继续验证的问题。推送渠道和运行时间由部署环境配置，公开核心包不绑定个人账户、邮箱或推送凭据。
+下面描述的是使用公开核心包搭建的应用层流程；这些报告和推送目前不是仓库中可直接运行的命令。
+
+| 频率 | 建议内容 | 数据要求 |
+| --- | --- | --- |
+| 日报 | 行情数据时间与覆盖率、轮动排名和信号、目标权重、风险提示、AI 观点/置信度/证据/风险/观察项 | 先刷新最新可用行情；把价格时间戳和缺失标的列入报告，避免用过期或不完整数据悄悄生成计划 |
+| 周度复盘 | 机械信号与 AI 前瞻观点的样本数、方向命中或基准超额、轮动变化、待验证问题；如需账户盈亏，另由部署应用选择性接入本地账本 | 保存每日决策时点的信号和 AI 观点快照；按预先指定的评估周期和基准回看，披露样本数。仅当部署者提供交易账本时才报告账户实际盈亏 |
+
+生成日报时，可以把 `select_assets`、`volatility_target_weights` 的结果与 `run_trading_agents_review` 的结构化评估一起渲染为 Markdown 或 HTML。周复盘应使用当时保存的观点和信号计算前瞻结果，避免事后重算输入造成时间穿越；公开包目前不提供这些数据的存档或周度评分流程。
+
+### 邮件与企业微信
+
+公开包没有内置邮件账号、微信凭据或发送客户端。部署应用可以从环境变量读取密钥，并把同一份 Markdown 日报/周报分别交给邮件和企业微信群机器人。SMTP_SSL 可用于邮件；企业微信群机器人通过 Webhook 接收 JSON Markdown 消息（参见[企业微信消息推送文档](https://developer.work.weixin.qq.com/document/path/91770)）。个人微信不是这个群机器人接口的接收端；个人账号推送需另选合规的第三方通知服务。
+
+示例代码使用以下环境变量：
+
+| 变量 | 用途 |
+| --- | --- |
+| `SMTP_HOST`、`SMTP_PORT` | 邮箱服务商的 SMTP SSL 主机和端口（常见端口为 465，按服务商设置） |
+| `SMTP_USER`、`SMTP_PASSWORD` | 发件邮箱和应用专用密码 |
+| `REPORT_TO` | 报告收件邮箱 |
+| `WECOM_BOT_WEBHOOK` | 企业微信群机器人完整 Webhook URL；按机密凭据保管 |
+
+下面是部署层示例，环境变量都应在运行环境或密钥管理服务中设置，不能写入仓库。SMTP 主机和端口需按邮箱服务商配置；`WECOM_BOT_WEBHOOK` 整条 URL 都是秘密：
+
+```python
+import json
+import os
+import smtplib
+import ssl
+from email.message import EmailMessage
+from urllib.request import Request, urlopen
+
+
+def send_email(subject: str, body: str) -> None:
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = os.environ["SMTP_USER"]
+    message["To"] = os.environ["REPORT_TO"]
+    message.set_content(body)
+    with smtplib.SMTP_SSL(
+        os.environ["SMTP_HOST"], int(os.environ.get("SMTP_PORT", "465")),
+        context=ssl.create_default_context(), timeout=20,
+    ) as smtp:
+        smtp.login(os.environ["SMTP_USER"], os.environ["SMTP_PASSWORD"])
+        smtp.send_message(message)
+
+
+def send_wecom_markdown(body: str) -> None:
+    request = Request(
+        os.environ["WECOM_BOT_WEBHOOK"],
+        data=json.dumps({"msgtype": "markdown", "markdown": {"content": body}}).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urlopen(request, timeout=15) as response:
+        result = json.loads(response.read())
+    if result.get("errcode") != 0:
+        raise RuntimeError(f"WeCom delivery failed: errcode={result.get('errcode')}")
+```
+
+给个人邮箱或企业微信群发送账户级别内容前，应确认收件范围和内容；如果只需公开市场摘要，就不要把个人持仓、账本或账户价值放进消息。Webhook 和 API key 不得提交到 Git，也不要在日志中打印完整 URL 或凭据。
+
+定时运行由部署应用配置（例如 cron 或 systemd timer），并自行处理时区、交易日/节假日、失败重试和重复发送。定时任务应调用你自己的报告编排入口；本仓库没有 `daily_report` / `weekly_report` 命令或默认时间表。
 
 ## 快速开始
 
@@ -79,8 +143,6 @@ python -m pip install -e '.[dev]'
 示例展示如何生成策略信号、筛选候选和计算仓位。行情面板、历史收益、持仓快照、事实摘要及 `my_model_adapter` 由配置的数据源和部署应用提供：
 
 ```python
-import pandas as pd
-
 from etf_compass import equal_weight_ensemble, momentum_score, select_assets
 from etf_compass import turtle_breakout, volatility_target_weights
 from etf_compass.agents import run_trading_agents_review
@@ -134,6 +196,8 @@ The two approaches contribute different strengths. Mechanical strategies apply c
 
 Before calculating signals, the integrated application fetches the latest available market data from its configured provider and checks timestamps and completeness. Mechanical signals are combined into an ETF rotation and position plan. In parallel, analyst roles review market facts, bull and cautious perspectives debate the evidence, and risk review plus a portfolio manager produce a structured assessment. Daily reports can bring together the plan and AI view; weekly reviews can summarize forward-signal quality and rotation results. Scheduling and delivery are configured by the deployment application.
 
+The package consumes price panels, return series, and fact summaries prepared by its caller; it does not connect directly to a market-data vendor. A complete application should fetch the latest available data before calculating signals and surface timestamps, missing values, and coverage in its report. Do not label a stale cache as current market data.
+
 ### Strategy toolkit
 
 ETF Compass combines complementary price-based signals for ETF ranking and portfolio construction:
@@ -148,15 +212,77 @@ ETF Compass combines complementary price-based signals for ETF ranking and portf
 
 Signals can be combined with equal weights and used for buffered Top-K rotation. Portfolio sizing supports volatility targeting, per-asset caps, and a total exposure limit. Use point-in-time data and align backtests with the intended execution timing and costs.
 
-### TradingAgents-style AI review
+### [TradingAgents](https://github.com/TauricResearch/TradingAgents)-style AI review
 
-Technical, flow, and industry analyst roles summarize supplied facts. Bull and cautious researchers debate the evidence over configurable rounds. A risk reviewer checks downside cases, and a portfolio manager returns a structured view with confidence, evidence, risks, and watch items. The AI assessment is advisory: it does not replace the mechanical signal or issue orders.
+The caller can provide technical, flow, industry, or other fact groups, each summarized by an analyst role. Bull and cautious researchers debate the evidence over configurable rounds. A risk reviewer checks downside cases, and a portfolio manager returns a structured view with confidence, evidence, risks, and watch items. The AI assessment is advisory: it does not replace the mechanical signal or issue orders.
 
-The model provider is configurable through a caller-supplied `complete(prompt)` adapter. Multiple roles and debate rounds result in multiple model calls, so request volume depends on the configured workflow. API credentials belong in the application environment or a secrets manager. **Do not commit API keys to source code, documentation, logs, or Git history. No personal API key is included in this repository.**
+The model provider is configurable through a caller-supplied `complete(prompt)` adapter. Each supplied `facts` group becomes an analyst role; bull and cautious researchers debate for the configured number of rounds, followed by risk review and a structured portfolio research assessment. Multiple roles and debate rounds result in multiple model calls, so request volume depends on the configured workflow. API credentials belong in the application environment or a secrets manager. **Do not commit API keys to source code, documentation, logs, or Git history. No personal API key is included in this repository.**
 
-### Daily reports and weekly review
+### Daily reports, weekly reviews, and delivery
 
-In a deployed workflow, the latest quotes, rotation results, target weights, risk notes, and AI assessment can be assembled into a daily report. Weekly reviews can summarize forward-signal quality, rotation results, and open research questions. The deployment application configures the schedule and delivery channel; this package does not include a personal account, mailbox, or push credential.
+The following describes an application built on this package. Report generation, persistence, scheduling, and delivery are **not currently implemented as runnable commands in this repository**.
+
+| Cadence | Suggested contents | Data requirements |
+| --- | --- | --- |
+| Daily | Quote timestamp and coverage, rotation ranks and signals, target weights, risk notes, and the AI stance, confidence, evidence, risks, and watch items | Refresh the latest available quotes first. Report timestamps and missing assets so stale or incomplete input is visible |
+| Weekly | Sample counts and forward results for mechanical signals and AI views, benchmark-relative performance, rotation changes, and open research questions. Account P&L is optional and requires a separately supplied local ledger | Persist point-in-time signals and AI views. Evaluate them at a predeclared horizon against a chosen benchmark and report sample counts; only report realized account P&L when the deployment explicitly supplies a trade ledger |
+
+An application can render the outputs of `select_assets`, `volatility_target_weights`, and `run_trading_agents_review` as Markdown or HTML for a daily report. A weekly review should use the saved decision-time inputs to avoid look-ahead from recomputing signals after the fact. This package does not yet store these snapshots or calculate a weekly scorecard.
+
+#### Email and WeCom
+
+The package does not include mailboxes, WeChat credentials, or delivery clients. A deployment can load secrets from environment variables or a secrets manager and send the same Markdown report by SMTP over SSL and to an enterprise WeChat group robot Webhook. See the [WeCom message-push documentation](https://developer.work.weixin.qq.com/document/path/91770). A personal WeChat account is not the recipient for this group-robot endpoint; personal-account delivery requires a separate supported notification service.
+
+The example uses these environment variables:
+
+| Variable | Purpose |
+| --- | --- |
+| `SMTP_HOST`, `SMTP_PORT` | Mail provider's SMTP SSL host and port (465 is common; follow your provider's settings) |
+| `SMTP_USER`, `SMTP_PASSWORD` | Sender mailbox and app-specific password |
+| `REPORT_TO` | Report recipient |
+| `WECOM_BOT_WEBHOOK` | Full enterprise WeChat group robot Webhook URL; treat it as a secret |
+
+The following deployment example keeps credentials outside the repository. Configure the SMTP host and port for your mail provider. Treat the entire `WECOM_BOT_WEBHOOK` URL as a secret:
+
+```python
+import json
+import os
+import smtplib
+import ssl
+from email.message import EmailMessage
+from urllib.request import Request, urlopen
+
+
+def send_email(subject: str, body: str) -> None:
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = os.environ["SMTP_USER"]
+    message["To"] = os.environ["REPORT_TO"]
+    message.set_content(body)
+    with smtplib.SMTP_SSL(
+        os.environ["SMTP_HOST"], int(os.environ.get("SMTP_PORT", "465")),
+        context=ssl.create_default_context(), timeout=20,
+    ) as smtp:
+        smtp.login(os.environ["SMTP_USER"], os.environ["SMTP_PASSWORD"])
+        smtp.send_message(message)
+
+
+def send_wecom_markdown(body: str) -> None:
+    request = Request(
+        os.environ["WECOM_BOT_WEBHOOK"],
+        data=json.dumps({"msgtype": "markdown", "markdown": {"content": body}}).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urlopen(request, timeout=15) as response:
+        result = json.loads(response.read())
+    if result.get("errcode") != 0:
+        raise RuntimeError(f"WeCom delivery failed: errcode={result.get('errcode')}")
+```
+
+Before sending account-level content to a mailbox or group, verify the recipients and message contents. Keep private holdings and ledger data out of public summaries unless explicitly needed. Never commit Webhook URLs or API keys, and do not print full credentials in logs.
+
+Scheduling belongs to the deployment application (for example, cron or a systemd timer), which must handle time zones, market holidays, retries, and duplicate sends. The scheduled command should call your own report orchestrator; this repository has no `daily_report` or `weekly_report` command or default schedule.
 
 ### Quick start
 
@@ -171,8 +297,6 @@ python -m pip install -e '.[dev]'
 The example below assumes the deployment application has prepared the price and return panels, the current holdings snapshot, verified facts, and a configured model adapter:
 
 ```python
-import pandas as pd
-
 from etf_compass import equal_weight_ensemble, momentum_score, select_assets
 from etf_compass import turtle_breakout, volatility_target_weights
 from etf_compass.agents import run_trading_agents_review
@@ -204,5 +328,3 @@ python -m pytest
 ```
 
 ETF Compass is a research prototype, not investment advice or a trading solicitation. Backtest results depend on the sample, universe, data quality, transaction costs, and execution timing. Historical results and model assessments do not guarantee future performance. Validate data, assumptions, and out-of-sample behavior independently.
-
-ETF Compass is a research prototype, not investment advice. Historical results and model assessments do not guarantee future performance. Validate data, assumptions, transaction costs, and out-of-sample behavior independently.
