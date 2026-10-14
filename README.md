@@ -10,7 +10,7 @@
 [![License](https://img.shields.io/badge/License-MIT-35A16B.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Research%20Prototype-E9A23B.svg)](#项目状态)
 
-[English](#english) · [快速开始](#快速开始) · [报告与推送](#报告与推送)
+[English](#english) · [开始使用](#开始使用) · [报告与推送](#报告与推送)
 
 </div>
 
@@ -62,19 +62,13 @@ AI 以同一组行情与市场事实为输入，并把策略计划作为评估�
 
 AI 工作流包含事实分析、多空研究、风险审查和组合经理总结，输出立场、信心、证据、风险与观察项。调用方可选择兼容 API 或本地模型接入。项目思路与 [TradingAgents](https://github.com/TauricResearch/TradingAgents) 相关。
 
-### 按需扩展，自己 DIY
+### 按需扩展，打造自己的 ETF Agent
 
-核心组件是可单独调用、自由组合的 Python 函数，方便从现有模块出发，逐步搭建自己的 ETF 研究流程：
-
-- **添加策略信号：** 自定义函数返回按日期和 ETF 对齐的 `pandas.DataFrame`，即可传入 `equal_weight_ensemble({...})`，与内置信号共同合议。
-- **定制筛选与仓位：** `select_assets(...)` 根据评分和持仓缓冲选出候选 ETF；`volatility_target_weights(...)` 根据历史收益估算目标权重，并应用波动率与敞口限制。可按需替换任一环节，接入自己的筛选、轮动、仓位或风险方法。
-- **扩展 AI 研究：** `run_trading_agents_review(...)` 接收自定义 `facts` 事实组、`complete(prompt)` 模型适配器和 `rounds` 讨论轮数（1–5）。事实组名称可定义分析角色，适配器可连接兼容 API 或本地模型。内置多空、风险与总结阶段提供开箱即用的流程；也可复用模型适配接口，自行编排分析步骤。
-
-不同扩展都可接回组合和报告流程。验证时应统一数据时点、基准、评估周期与执行假设。
+ETF Compass 为自主研究和策略开发而设计，提供清晰、可组合的扩展接口。你可以加入自己的量化信号，持续打磨 ETF 筛选与轮动逻辑，定制组合构建和风险控制；也可以接入偏好的模型、补充行情与研究信息，按自己的投资理念拓展 AI 分析。按需组合、逐步演进，打造适合自己的 ETF Trading Agent。
 
 ## 报告与推送
 
-支持生成并推送每日策略简报与每周复盘。日报呈现行情、策略组合和 AI 研究摘要；周报整理调用方提供的轮动回顾，以及仅包含已到期样本的 AI 观点评估。报告用于辅助研究，不替代策略验证。
+内置日报与每周复盘能力，让策略组合、AI 观点和阶段回顾清晰呈现；支持邮件及微信等推送场景，方便将研究结果融入日常工作流。
 
 <div align="center">
   <a href="assets/report-preview.svg">
@@ -84,60 +78,17 @@ AI 工作流包含事实分析、多空研究、风险审查和组合经理总�
   <sub>每日简报样式预览 · 点击图片查看原图 · 所有数值均为虚构示例</sub>
 </div>
 
-HTML 日报可用于邮件或浏览器查看；微信渠道发送适配的文本版。报告中的行情、账户信息与推送渠道由使用者的部署应用提供；本仓库不包含私人账户数据或推送密钥。
+提供精美的 HTML 日报样式，并支持邮件和微信渠道推送。行情与推送配置由使用者自行接入；公开项目不包含个人账户信息或任何私密密钥。
 
-## 快速开始
+## 开始使用
 
-需要 Python 3.11 或更高版本：
+需要 Python 3.11 或更高版本。克隆项目并安装，即可开始探索：
 
 ```bash
 git clone https://github.com/BZX667/ETF-Compass.git
 cd ETF-Compass
 python -m pip install -e '.[dev]'
-python -m pytest
 ```
-
-以下是应用侧集成示意。策略函数接收调用方准备的行情面板，不直接连接行情供应商：
-
-```python
-from etf_compass import (
-    equal_weight_ensemble, momentum_score, render_daily_report,
-    render_daily_report_html, select_assets, send_report,
-    volatility_target_weights, turtle_breakout,
-)
-from etf_compass.agents import run_trading_agents_review
-
-# my_signal(close) 由应用侧实现，返回与内置信号对齐的 DataFrame。
-signals = {
-    "momentum": momentum_score(close),
-    "turtle": turtle_breakout(close),
-    "my_signal": my_signal(close),
-}
-scores = equal_weight_ensemble(signals).iloc[-1].dropna()
-selected = select_assets(scores, top_k=4, held=current_holdings, buffer_multiple=1.25)
-weights = volatility_target_weights(returns, selected, max_weight=0.35)
-
-review = run_trading_agents_review(
-    facts={"technical": technical_facts, "industry": industry_facts},
-    mechanical_plan=f"Target weights: {weights.to_dict()}",
-    complete=my_model_adapter,  # 由调用方接入兼容 API 或本地模型
-)
-report_inputs = dict(
-    as_of=report_date,
-    market_data_as_of=quote_timestamp,
-    rotation=[
-        {"symbol": symbol, "score": scores[symbol], "weight": weights[symbol]}
-        for symbol in selected
-    ],
-    assessment=review.assessment,
-    market_coverage="selected ETF universe",
-)
-text_report = render_daily_report(**report_inputs)
-html_report = render_daily_report_html(**report_inputs)
-send_report("ETF daily research", text_report, html_body=html_report, channels=("email", "serverchan"))
-```
-
-周复盘可使用 `ForwardObservation` 保存每次观点的观察日、评估结束日、立场、标的收益和基准收益，再调用 `score_forward_observations(..., as_of=review_date)` 与 `render_weekly_review(...)`。收益区间必须从观察日之后开始，并统一基准和持有期；仅已结束的样本进入评分。
 
 ## 项目状态与风险说明
 
@@ -149,4 +100,4 @@ ETF Compass 处于研究原型阶段。它不提供交易执行，也不保证�
 
 ## English
 
-**ETF Compass is an open-source Python toolkit for ETF research, combining systematic rotation and risk controls with AI-assisted analysis.** It includes daily and weekly report helpers, with optional email and WeChat delivery. Market data, model access, credentials, and scheduling are supplied by the deploying application; no personal keys, account details, or trading records are included. The project is a research prototype and does not execute trades or provide investment advice.
+**ETF Compass is an open-source Python toolkit for ETF research, combining systematic strategies and portfolio risk controls with AI-powered research.** Its modular design invites you to bring your own signals, portfolio ideas, market research, and preferred AI models to build an ETF agent around your approach. Daily briefs and weekly reviews help keep the research process clear and actionable. ETF Compass is a research project and does not execute trades or provide investment advice.
