@@ -13,6 +13,7 @@ dependencies = ["numpy>=1.26", "pandas>=2.1"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
+research = ["yfinance>=0.2.58"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

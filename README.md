@@ -1,103 +1,103 @@
 <div align="center">
 
-<img src="assets/etf-compass-banner.svg" alt="ETF Compass — systematic ETF strategies and AI research" width="100%">
+<img src="assets/etf-compass-banner.svg" alt="ETF Compass — build your own AI-powered ETF trading agent" width="100%">
 
-### 让策略保持纪律，让 AI 分析拓展视角
+# ETF Compass 🧭
 
-**ETF Compass 是一个面向 ETF 研究的开源 Python 工具包，将系统化策略、组合风险控制与 AI 独立研究组合在一起。**
+### Build Your Own AI-Powered ETF Trading Agent
+
+**An open, extensible ETF research framework combining systematic signals, portfolio risk controls, and independent AI research.**
+
+Systematic signals. Independent AI research. You stay in control.
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-35A16B.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Research%20Prototype-E9A23B.svg)](#项目状态)
+[![Tests](https://img.shields.io/badge/Tests-pytest-6A5ACD.svg)](#testing)
 
-[English](#english) · [开始使用](#开始使用) · [报告与推送](#报告与推送)
+[中文](README_zh.md) · [Quick Start](#quick-start) · [Research Case](#reproducible-research-case)
+
+<a href="assets/report-preview.svg"><img src="assets/report-preview.svg" alt="Illustrative ETF Compass daily research brief; values are fictional" width="78%"></a>
+
+<sub>Illustrative daily report preview · fictional sample values · <a href="assets/report-preview.svg">View full size</a></sub>
 
 </div>
 
-规则信号负责候选筛选、ETF 轮动与仓位约束；AI 根据调用方提供的市场事实补充证据、检验多空观点并提示风险。策略结果保持可复核，AI 提供独立研究视角；AI 不改写策略权重，也不执行交易。
+ETF Compass combines rule-based ETF selection and position sizing with an AI research workflow that tests evidence, counterarguments, and portfolio risks. The strategy produces an auditable portfolio plan; AI adds a separate research view and does not rewrite the strategy weights or place orders.
 
-## 工作流程
+## How it works
 
 ```mermaid
+%%{init: {"theme":"base", "themeVariables":{"primaryColor":"#eee9f7","primaryTextColor":"#332b45","primaryBorderColor":"#8875aa","lineColor":"#77628f","secondaryColor":"#f4f0f8","tertiaryColor":"#faf8fc","clusterBkg":"#f8f5fb","clusterBorder":"#c9bdd8"}}}%%
 flowchart TB
-    INPUT([最新可用行情与市场事实<br/>由调用方接入])
-
-    subgraph STRATEGY[系统化策略 · 规则与仓位]
+    M["Market data and research facts"]
+    subgraph S["SYSTEMATIC PORTFOLIO"]
         direction LR
-        S1[价格信号<br/>趋势 · 动量 · 均值回归 · 突破]
-        S2[信号合议与 ETF 轮动<br/>Top-K · 持仓缓冲]
-        S3[仓位与风险控制<br/>目标波动率 · 敞口上限]
-        S4[目标组合计划]
-        S1 --> S2 --> S3 --> S4
+        S1["Signals and ETF ranking"] --> S2["Rotation and hold buffer"] --> S3["Risk budget and weights"]
     end
-
-    subgraph RESEARCH[AI 研究 · 证据与风险]
+    subgraph A["INDEPENDENT AI RESEARCH"]
         direction LR
-        A1[多源事实分析<br/>技术 · 资金 · 产业]
-        A2[多空观点检验]
-        A3[风险复核与总结]
-        A4[独立评估<br/>立场 · 证据 · 观察项]
-        A1 --> A2 --> A3 --> A4
+        A1["Research roles"] --> A2["Evidence and counterpoints"] --> A3["Risk review"]
     end
-
-    INPUT --> STRATEGY
-    INPUT --> RESEARCH
-    STRATEGY --> OUTPUT([日报与每周复盘])
-    RESEARCH --> OUTPUT
+    S --> R["Daily brief and weekly review"]
+    A --> R
+    M --> S
+    M --> A
+    classDef input fill:#f0ebf6,stroke:#8875aa,color:#332b45,stroke-width:1.5px
+    classDef strategy fill:#e8e1f1,stroke:#77628f,color:#332b45,stroke-width:1.5px
+    classDef research fill:#f1edf7,stroke:#8875aa,color:#332b45,stroke-width:1.5px
+    classDef output fill:#ddd3ea,stroke:#67547d,color:#2c2439,stroke-width:2px
+    class M input
+    class S1,S2,S3 strategy
+    class A1,A2,A3 research
+    class R output
 ```
 
-AI 以同一组行情与市场事实为输入，并把策略计划作为评估背景；它提供独立观点与风险审视，不覆盖策略信号。
+Systematic strategy and AI research complement each other: portfolio rules determine the candidate allocation, while AI independently examines the evidence and risks. Daily and weekly report rendering and delivery-channel functions are included; data feeds, model credentials, and scheduling are supplied by the integrating application.
 
-## 系统化策略 + AI 分析
+## Quick start
 
-| 策略 | 核心思路 |
-| --- | --- |
-| 海龟通道突破 | 跟踪价格突破近期区间及趋势退出信号 |
-| 标准化动量 | 衡量相对强度，并按波动水平标准化 |
-| 双动量 | 比较资产间强弱，并过滤绝对动量为负的标的 |
-| RSI 均值回归 | 识别短期超卖状态与潜在修复信号 |
-| ATR 波动率突破 | 结合均线和真实波幅跟踪趋势变化 |
-
-信号可等权合议，用于横截面排名与 Top-K 轮动；持仓缓冲减少排名边缘的频繁切换。仓位模块基于历史波动估算风险目标，并限制单项权重和组合总敞口。调用方提供行情数据，信号应使用决策时点可获得的信息，并按实际执行时点评估。
-
-AI 工作流包含事实分析、多空研究、风险审查和组合经理总结，输出立场、信心、证据、风险与观察项。调用方可选择兼容 API 或本地模型接入。项目思路与 [TradingAgents](https://github.com/TauricResearch/TradingAgents) 相关。
-
-### 按需扩展，打造自己的 ETF Agent
-
-ETF Compass 为自主研究和策略开发而设计，提供清晰、可组合的扩展接口。你可以加入自己的量化信号，持续打磨 ETF 筛选与轮动逻辑，定制组合构建和风险控制；也可以接入偏好的模型、补充行情与研究信息，按自己的投资理念拓展 AI 分析。按需组合、逐步演进，打造适合自己的 ETF Trading Agent。
-
-## 报告与推送
-
-内置日报与每周复盘能力，让策略组合、AI 观点和阶段回顾清晰呈现；支持邮件及微信等推送场景，方便将研究结果融入日常工作流。
-
-<div align="center">
-  <a href="assets/report-preview.svg">
-    <img src="assets/report-preview.svg" alt="ETF Compass 每日策略简报样式预览；示例数据为虚构内容" width="78%">
-  </a>
-  <br>
-  <sub>每日简报样式预览 · 点击图片查看原图 · 所有数值均为虚构示例</sub>
-</div>
-
-提供精美的 HTML 日报样式，并支持邮件和微信渠道推送。行情与推送配置由使用者自行接入；公开项目不包含个人账户信息或任何私密密钥。
-
-## 开始使用
-
-需要 Python 3.11 或更高版本。克隆项目并安装，即可开始探索：
+Python 3.11 or newer. The offline demo needs only the core dependencies and prints a complete backtest summary using deterministic synthetic data:
 
 ```bash
 git clone https://github.com/BZX667/ETF-Compass.git
 cd ETF-Compass
 python -m pip install -e '.[dev]'
+python examples/quickstart.py
 ```
 
-## 项目状态与风险说明
+This is a runnable software demo, not a market-data result or investment claim. ETF Compass does not currently provide a general-purpose command-line interface or bundled market-data feed.
 
-ETF Compass 处于研究原型阶段。它不提供交易执行，也不保证收益。数据质量、幸存者偏差、评估窗口、交易成本和执行时点都会影响结果；应独立验证策略和 AI 输出，不把历史表现视为未来保证。本项目不构成投资建议。
+## Reproducible research case
 
----
+Run a fixed 2010–2024 historical study using adjusted daily prices for five long-running U.S.-listed ETFs. It applies positive 126-session momentum, selects up to two funds, estimates risk from the prior 20 sessions, models next-session closing execution, and charges 6 bps per one-way turnover. The script downloads the public price history and saves a report with its date range, assumptions, and a hash of the aligned price panel.
 
-<a id="english"></a>
+```bash
+python -m pip install -e '.[research]'
+python examples/public_research_case.py
+```
 
-## English
+The checked-in [research result](examples/results/public-etf-research-case.md) reports a 6.46% annualized return for the rotation example and 5.11% for the SPY comparison over this sample. It retrieves adjusted daily prices from [Yahoo Finance](https://finance.yahoo.com/quote/SPY/history/) through [yfinance](https://ranaroussi.github.io/yfinance/reference/api/yfinance.download.html). This is one retrospective example, not an independently validated strategy, and should not be read as evidence of future performance. Yahoo Finance may revise historical data, so a later download can produce different results. The study uses U.S. daily data and does not validate intraday, A-share, or QDII execution.
 
-**ETF Compass is an open-source Python toolkit for ETF research, combining systematic strategies and portfolio risk controls with AI-powered research.** Its modular design invites you to bring your own signals, portfolio ideas, market research, and preferred AI models to build an ETF agent around your approach. Daily briefs and weekly reviews help keep the research process clear and actionable. ETF Compass is a research project and does not execute trades or provide investment advice.
+## What is included
+
+- **Systematic strategy:** trend breakout, normalized momentum, dual momentum, RSI mean reversion, and ATR breakout signals; score-based ETF rotation with a holding buffer; volatility-targeted sizing with single-name and gross-exposure limits.
+- **Historical research:** a daily rotation backtest with close-signal/next-session-close execution, turnover costs, benchmark comparison, and performance summary. The caller supplies prices and scores.
+- **AI research:** a pluggable multi-role analyst workflow with evidence, opposing views, risk review, and a structured final assessment. The caller supplies a model completion function; no model provider or API key is bundled.
+- **Reports:** Markdown/HTML daily reports, weekly forward-observation reviews, and email/WeChat delivery functions. Market-data ingestion, account ledger, and scheduled jobs remain application integrations.
+
+## Extend it your way
+
+Bring your own factors, ETF universe, portfolio rules, market data, and AI models. Combine the pieces around your research process and keep evolving your own ETF Trading Agent.
+
+## Testing
+
+```bash
+python -m pip install -e '.[dev]'
+pytest
+```
+
+The tests cover signal behavior, portfolio constraints, execution timing and costs, report rendering, notification behavior, and AI-workflow output validation.
+
+## Scope
+
+ETF Compass is a research framework, not a broker or an investment adviser. Historical results depend on data quality, universe selection, evaluation windows, execution assumptions, and transaction costs. Validate each strategy independently before using it in a live setting.

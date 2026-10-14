@@ -1,5 +1,6 @@
 """ETF Compass: systematic ETF research and independent AI evaluation."""
 
+from .backtest import BacktestResult, render_backtest_report, run_rotation_backtest
 from .evaluation import (
     ForwardObservation,
     ForwardScorecard,
@@ -29,6 +30,7 @@ __all__ = [
     "ForwardObservation",
     "ForwardScorecard",
     "IndependentAssessment",
+    "BacktestResult",
     "NotificationError",
     "dual_momentum_score",
     "equal_weight_ensemble",
@@ -38,6 +40,8 @@ __all__ = [
     "render_daily_report",
     "render_daily_report_html",
     "render_weekly_review",
+    "render_backtest_report",
+    "run_rotation_backtest",
     "score_forward_observations",
     "send_email",
     "send_report",

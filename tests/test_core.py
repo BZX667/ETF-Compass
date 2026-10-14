@@ -4,7 +4,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from etf_compass import select_assets, volatility_target_weights
+from etf_compass import (
+    render_backtest_report,
+    run_rotation_backtest,
+    select_assets,
+    volatility_target_weights,
+)
 from etf_compass.agents import run_trading_agents_review
 from etf_compass.evaluation import parse_assessment
 from etf_compass.signals import (
@@ -37,6 +42,88 @@ def test_volatility_weights_obey_name_and_gross_caps():
     assert (weights >= 0).all()
     assert weights.max() <= 0.3 + 1e-12
     assert weights.sum() <= 0.8 + 1e-12
+
+
+def test_volatility_weights_recheck_risk_after_caps():
+    rng = np.random.default_rng(1)
+    returns = pd.DataFrame(rng.normal(0, 0.01, (20, 4)), columns=list("ABCD"))
+    weights = volatility_target_weights(
+        returns,
+        list("ABCD"),
+        target_volatility=0.08,
+        lookback=20,
+        max_weight=0.25,
+        max_gross_exposure=1.0,
+    )
+    covariance = returns.cov().to_numpy() * 252
+    estimated_volatility = float(np.sqrt(weights.to_numpy() @ covariance @ weights.to_numpy()))
+    assert weights.max() <= 0.25 + 1e-12
+    assert weights.sum() <= 1.0 + 1e-12
+    assert estimated_volatility <= 0.08 + 1e-10
+
+
+def test_zero_volatility_asset_does_not_receive_redistributed_weight():
+    rng = np.random.default_rng(4)
+    returns = pd.DataFrame({"A": rng.normal(0, 0.01, 20), "B": 0.0})
+    weights = volatility_target_weights(
+        returns,
+        ["A", "B"],
+        target_volatility=0.2,
+        lookback=20,
+        max_weight=0.3,
+        max_gross_exposure=1.0,
+    )
+    assert weights["A"] == pytest.approx(0.3)
+    assert weights["B"] == 0.0
+
+
+def test_rotation_backtest_uses_next_close_period_and_charges_rebalance_cost():
+    dates = pd.RangeIndex(8)
+    close = pd.DataFrame(
+        {"A": [100, 101, 102, 103, 104, 105, 106, 107], "B": [100, 102, 101, 103, 104, 104, 108, 109]},
+        index=dates,
+    )
+    scores = pd.DataFrame({"A": [1.0] * 8, "B": [0.0] * 8}, index=dates)
+    result = run_rotation_backtest(
+        close,
+        scores,
+        benchmark_close=close["B"],
+        top_k=1,
+        target_volatility=100.0,
+        risk_lookback=2,
+        max_weight=1.0,
+        fee=0.01,
+        annualization=4,
+    )
+    assert result.positions.loc[2, "A"] == pytest.approx(1.0)
+    assert result.daily_returns.loc[3] == pytest.approx(-0.01)
+    assert result.daily_returns.loc[4] == pytest.approx(104 / 103 - 1)
+    assert result.metrics["total_cost"] == pytest.approx(0.01)
+    assert result.benchmark_equity is not None
+    assert result.benchmark_equity.iloc[0] == pytest.approx(1.0)
+    report = render_backtest_report(result)
+    assert "Annualized return" in report
+    assert "Maximum drawdown" in report
+
+
+def test_rotation_backtest_preclose_mode_executes_at_same_date_close():
+    dates = pd.RangeIndex(7)
+    close = pd.DataFrame({"A": [100, 101, 102, 103, 104, 105, 106]}, index=dates)
+    scores = pd.DataFrame({"A": [1.0] * 7}, index=dates)
+    result = run_rotation_backtest(
+        close,
+        scores,
+        top_k=1,
+        target_volatility=100.0,
+        risk_lookback=2,
+        max_weight=1.0,
+        execution_lag=1,
+        fee=0.01,
+        annualization=4,
+    )
+    assert result.positions.loc[3, "A"] == pytest.approx(1.0)
+    assert result.daily_returns.loc[3] == pytest.approx(-0.01)
+    assert result.daily_returns.loc[4] == pytest.approx(104 / 103 - 1)
 
 
 def test_assessment_parser_validates_fields():

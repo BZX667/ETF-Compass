@@ -19,13 +19,14 @@ def volatility_target_weights(
     max_gross_exposure: float = 1.0,
     annualization: int = 252,
 ) -> pd.Series:
-    """Build inverse-volatility weights and scale to an annual risk target.
+    """Build inverse-volatility weights under an annualized volatility target.
 
     ``returns`` must contain observations strictly before the intended
     execution period. At least ``lookback`` complete observations are used.
     Weights are long-only, sum to no more than ``max_gross_exposure``, and
-    each asset is capped at ``max_weight``. If the caps prevent using the full
-    risk budget, the function leaves the remainder in cash.
+    each asset is capped at ``max_weight``. Portfolio volatility is re-estimated
+    after applying these constraints and will not exceed the target; if the
+    limits prevent using the full risk budget, the remainder stays in cash.
     """
     if not assets:
         return pd.Series(dtype=float, name="weight")
@@ -76,7 +77,7 @@ def volatility_target_weights(
         if excess.sum() <= 1e-12:
             break
         weights = np.minimum(weights, max_weight)
-        room = np.maximum(max_weight - weights, 0.0)
+        room = np.maximum(max_weight - weights, 0.0) * (base > 0)
         if room.sum() <= 1e-12:
             break
         weights += room / room.sum() * min(float(excess.sum()), float(room.sum()))
@@ -84,4 +85,27 @@ def volatility_target_weights(
     total = float(weights.sum())
     if total > max_gross_exposure:
         weights *= max_gross_exposure / total
+
+    # Capping and redistributing names changes portfolio covariance. Recheck
+    # the risk after those constraints and use remaining capacity when the
+    # resulting risk is still below target. The target is an upper bound: if
+    # name or gross limits prevent reaching it, leave the portfolio below it.
+    for _ in range(len(assets) + 2):
+        estimated_vol = math.sqrt(max(float(weights @ covariance @ weights), 0.0))
+        total = float(weights.sum())
+        if estimated_vol > target_volatility * (1 + 1e-10):
+            weights *= target_volatility / estimated_vol
+            break
+        if estimated_vol <= 1e-12 or total >= max_gross_exposure - 1e-12:
+            break
+
+        scale = min(target_volatility / estimated_vol, max_gross_exposure / total)
+        expanded = np.minimum(weights * scale, max_weight)
+        if np.allclose(expanded, weights, rtol=1e-10, atol=1e-12):
+            break
+        expanded_vol = math.sqrt(max(float(expanded @ covariance @ expanded), 0.0))
+        if expanded_vol > target_volatility:
+            weights = expanded * (target_volatility / expanded_vol)
+            break
+        weights = expanded
     return pd.Series(weights, index=list(assets), name="weight")
