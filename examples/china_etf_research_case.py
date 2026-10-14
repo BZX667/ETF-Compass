@@ -80,7 +80,7 @@ def render_equity_chart(result: BacktestResult, output: Path) -> None:
     if result.equity.empty or result.benchmark_equity is None:
         return
 
-    left, top, plot_width, plot_height = 70, 64, 800, 230
+    left, top, plot_width, plot_height = 70, 60, 800, 230
     series = [result.equity, result.benchmark_equity]
     low = min(float(values.min()) for values in series)
     high = max(float(values.max()) for values in series)
@@ -90,37 +90,36 @@ def render_equity_chart(result: BacktestResult, output: Path) -> None:
 
     def points(values: pd.Series) -> str:
         count = max(len(values) - 1, 1)
-        coords = []
-        for i, value in enumerate(values.to_numpy(dtype=float)):
-            x = left + i / count * plot_width
-            y = top + (y_max - value) / y_range * plot_height
-            coords.append(f"{x:.1f},{y:.1f}")
-        return " ".join(coords)
+        return " ".join(
+            f"{left + i / count * plot_width:.1f},{top + (y_max - value) / y_range * plot_height:.1f}"
+            for i, value in enumerate(values.to_numpy(dtype=float))
+        )
 
     first_date = pd.Timestamp(result.equity.index[0])
     last_date = pd.Timestamp(result.equity.index[-1])
-    chart = [
-        '<svg xmlns="http://www.w3.org/2000/svg" width="940" height="360" viewBox="0 0 940 360" role="img" aria-labelledby="title desc">',
-        '<title id="title">ETF 轮动回测净值曲线</title><desc id="desc">ETF 轮动组合与沪深300 ETF 的历史净值对比。</desc>',
-        '<rect width="940" height="360" rx="14" fill="#fffefa"/>',
-        '<text x="34" y="34" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#67547d">回测净值对比</text>',
-        '<line x1="590" y1="30" x2="614" y2="30" stroke="#70558f" stroke-width="3"/><text x="622" y="34" font-family="Arial,sans-serif" font-size="12" fill="#332b45">ETF 轮动 Top 3</text>',
-        '<line x1="770" y1="30" x2="794" y2="30" stroke="#899397" stroke-width="2.5"/><text x="802" y="34" font-family="Arial,sans-serif" font-size="12" fill="#332b45">沪深 300</text>',
-    ]
-
-    for tick in [y_min + i * 0.5 for i in range(int(round((y_max - y_min) / 0.5)) + 1)]:
+    grid_lines = []
+    for half_tick in range(int(y_min * 2), int(y_max * 2) + 1):
+        tick = half_tick / 2
         y = top + (y_max - tick) / y_range * plot_height
-        chart.append(f'<line x1="{left}" y1="{y:.0f}" x2="{left + plot_width}" y2="{y:.0f}" stroke="#e6e1d9"/>')
-        chart.append(f'<text x="{left - 10}" y="{y + 4:.0f}" text-anchor="end" font-family="Arial,sans-serif" font-size="11" fill="#738084">{tick:.1f}×</text>')
-    chart.extend([
-        f'<polyline points="{points(result.benchmark_equity)}" fill="none" stroke="#899397" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>',
-        f'<polyline points="{points(result.equity)}" fill="none" stroke="#70558f" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>',
-        f'<text x="{left}" y="{top + plot_height + 24}" font-family="Arial,sans-serif" font-size="11" fill="#738084">{first_date:%Y-%m}</text>',
-        f'<text x="{left + plot_width}" y="{top + plot_height + 24}" text-anchor="end" font-family="Arial,sans-serif" font-size="11" fill="#738084">{last_date:%Y-%m}</text>',
-        '<text x="34" y="338" font-family="Arial,sans-serif" font-size="11" fill="#738084">复权净值 · 已计模型换手成本 · 收盘信号 / 次日收盘成交</text>',
-        '</svg>',
-    ])
-    output.write_text("\n".join(chart), encoding="utf-8")
+        grid_lines.append(
+            f'<line x1="{left}" y1="{y:.0f}" x2="{left + plot_width}" y2="{y:.0f}" stroke="#e6e1d9"/>'
+            f'<text x="{left - 10}" y="{y + 4:.0f}" text-anchor="end" font-size="11" fill="#738084">{tick:.1f}×</text>'
+        )
+    grid = "\n".join(grid_lines)
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="940" height="360" viewBox="0 0 940 360" role="img" aria-labelledby="title desc">
+<title id="title">ETF 轮动回测净值曲线</title><desc id="desc">ETF 轮动组合与沪深300 ETF 的历史净值对比。</desc>
+<rect width="940" height="360" rx="14" fill="#fffefa"/>
+<text x="34" y="34" font-size="15" font-weight="700" fill="#67547d">回测净值对比</text>
+<line x1="590" y1="30" x2="614" y2="30" stroke="#70558f" stroke-width="3"/><text x="622" y="34" font-size="12" fill="#332b45">ETF 轮动 Top 3</text>
+<line x1="770" y1="30" x2="794" y2="30" stroke="#899397" stroke-width="2.5"/><text x="802" y="34" font-size="12" fill="#332b45">沪深 300</text>
+{grid}
+<polyline points="{points(result.benchmark_equity)}" fill="none" stroke="#899397" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="{points(result.equity)}" fill="none" stroke="#70558f" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="{left}" y="{top + plot_height + 24}" font-size="11" fill="#738084">{first_date:%Y-%m}</text>
+<text x="{left + plot_width}" y="{top + plot_height + 24}" text-anchor="end" font-size="11" fill="#738084">{last_date:%Y-%m}</text>
+<text x="34" y="338" font-size="11" fill="#738084">复权净值 · 已计模型换手成本 · 收盘信号 / 次日收盘成交</text>
+</svg>'''
+    output.write_text(svg, encoding="utf-8")
 
 
 def main() -> None:
@@ -139,10 +138,10 @@ def main() -> None:
 | 累计收益 | {pct(result.metrics, 'total_return')} | {pct(benchmark, 'total_return')} |
 | 年化收益 | {pct(result.metrics, 'annualized_return')} | {pct(benchmark, 'annualized_return')} |
 | 年化波动率 | {pct(result.metrics, 'annualized_volatility')} | {pct(benchmark, 'annualized_volatility')} |
-| Sharpe | {result.metrics['sharpe']:.2f} | {benchmark['sharpe']:.2f} |
+| 夏普比率 | {result.metrics['sharpe']:.2f} | {benchmark['sharpe']:.2f} |
 | 最大回撤 | {pct(result.metrics, 'max_drawdown')} | {pct(benchmark, 'max_drawdown')} |
 
-Top 2 敏感性结果：累计收益 {pct(top_two.metrics, 'total_return')}，年化收益 {pct(top_two.metrics, 'annualized_return')}，Sharpe {top_two.metrics['sharpe']:.2f}。
+Top 2 敏感性结果：累计收益 {pct(top_two.metrics, 'total_return')}，年化收益 {pct(top_two.metrics, 'annualized_return')}，夏普比率 {top_two.metrics['sharpe']:.2f}。
 
 ## 复现口径
 
@@ -176,5 +175,5 @@ Top 2 敏感性结果：累计收益 {pct(top_two.metrics, 'total_return')}，�
 
 
 if __name__ == "__main__":
-    print(f"行情下载时间：{datetime.now(timezone.utc).date()} UTC")
+    print(f"行情日期：{datetime.now(timezone.utc).date()} UTC")
     main()
