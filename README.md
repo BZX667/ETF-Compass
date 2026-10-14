@@ -104,10 +104,45 @@ pytest
 
 ETF Compass 是研究工具，不提供交易执行或投资建议，也不保证收益。使用真实资金前，应独立验证数据、成本与执行假设。
 
-## English
+## English version
 
-ETF Compass is an open Python framework for systematic ETF research and AI-assisted analysis. It combines signals, ETF rotation, portfolio risk controls, and independent multi-role research. Extend it with your own strategies, data, and models.
+### ETF Compass: systematic ETF strategies and AI research
 
-The 2015–2024 ETF rotation case reports 8.07% annualized return, 0.76 Sharpe, and -15.73% maximum drawdown, compared with 1.00%, 0.15, and -42.16% for the CSI 300 ETF. [See the full backtest and assumptions](examples/results/china-etf-rotation-case.md). Historical results do not predict future returns.
+An open, extensible Python framework for ETF research. Systematic signals identify rotation opportunities and guide portfolio sizing; independent AI research adds evidence review and risk assessment. Use the modules with your own strategies, market data, and models.
 
-Quick start: `python -m pip install -e '.[dev]'` then `python examples/quickstart.py`. The package also includes daily/weekly report rendering and email/WeChat delivery functions. It is a research toolkit, not an investment adviser or broker.
+### Strategy and AI
+
+The toolkit includes trend, momentum, mean-reversion, and volatility-breakout signals; ETF ranking and rotation; volatility-based position sizing; and a multi-role AI research workflow. AI assessments remain separate from strategy weights.
+
+### Quick start
+
+Requires Python 3.11+. The offline demo uses deterministic synthetic prices:
+
+```bash
+git clone https://github.com/BZX667/ETF-Compass.git
+cd ETF-Compass
+python -m pip install -e '.[dev]'
+python examples/quickstart.py
+```
+
+### Historical case
+
+The fixed 2015–2024 case covers nine ETFs listed in mainland China. It uses positive 126-session momentum, a Top 3 portfolio, 20-session risk estimates, next-session closing execution, and 6 bps one-way turnover costs.
+
+| Metric | Rotation | CSI 300 ETF |
+| --- | ---: | ---: |
+| Cumulative return | 103.17% | 9.53% |
+| Annualized return | 8.07% | 1.00% |
+| Sharpe ratio | 0.76 | 0.15 |
+| Annualized volatility | 11.07% | 21.38% |
+| Maximum drawdown | -15.73% | -42.16% |
+
+[Full report and assumptions](examples/results/china-etf-rotation-case.md). These are historical results under fixed assumptions, not forecasts. The retrospective universe may have survivorship bias, and cross-border ETF timing and premiums are not fully modeled.
+
+### Extensions and reports
+
+Add factors, ETF universes, portfolio methods, market-data connections, and model providers. The package also includes daily and weekly report rendering and email/WeChat delivery functions; data ingestion and scheduling are application integrations.
+
+### Validation and scope
+
+Run `pytest` to check signal, risk, backtest, reporting, notification, and AI workflow behavior. ETF Compass is a research tool, not a broker or investment adviser, and does not guarantee returns. Validate data quality, costs, and execution assumptions before live use.
