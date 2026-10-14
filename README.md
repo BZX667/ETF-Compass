@@ -35,36 +35,13 @@ flowchart LR
 
 ## 系统化策略 + AI 分析
 
-<table width="100%" align="center" cellpadding="10" cellspacing="0" style="width:100%;table-layout:fixed">
-  <colgroup>
-    <col width="30%">
-    <col width="70%">
-  </colgroup>
-  <thead>
-    <tr>
-      <th align="left">系统化策略</th>
-      <th align="left">核心作用</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="left" valign="top"><strong>海龟通道突破</strong></td>
-      <td align="left" valign="top">跟踪价格突破近期区间及趋势退出信号。</td>
-    </tr>
-    <tr>
-      <td align="left" valign="top"><strong>标准化动量、双动量</strong></td>
-      <td align="left" valign="top">比较 ETF 相对强度，并过滤绝对动量为负的标的。</td>
-    </tr>
-    <tr>
-      <td align="left" valign="top"><strong>RSI 均值回归</strong></td>
-      <td align="left" valign="top">识别短期超卖状态与潜在修复信号。</td>
-    </tr>
-    <tr>
-      <td align="left" valign="top"><strong>ATR 波动率突破</strong></td>
-      <td align="left" valign="top">结合均线和真实波幅跟踪趋势变化。</td>
-    </tr>
-  </tbody>
-</table>
+| 策略 | 核心思路 |
+| --- | --- |
+| 海龟通道突破 | 跟踪价格突破近期区间及趋势退出信号 |
+| 标准化动量 | 衡量相对强度，并按波动水平标准化 |
+| 双动量 | 比较资产间强弱，并过滤绝对动量为负的标的 |
+| RSI 均值回归 | 识别短期超卖状态与潜在修复信号 |
+| ATR 波动率突破 | 结合均线和真实波幅跟踪趋势变化 |
 
 多信号可等权合议，用于横截面排名和 Top-K 轮动；持仓缓冲减少排名边缘的频繁切换。仓位模块按历史波动估算风险目标，并限制单项权重和组合总敞口。计算信号时应使用决策时点可获得的数据，并按实际执行时点评估结果。
 
